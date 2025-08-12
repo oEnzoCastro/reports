@@ -1,8 +1,8 @@
 const express = require("express");
-const cors = require("cors")
+const cors = require("cors");
 const app = express();
 
-app.use(cors({origin: '*'}))
+app.use(cors({ origin: "*" }));
 
 const knex = require("knex")({
   client: "pg",
@@ -21,8 +21,6 @@ app.get("/api", async (req, res) => {
 
 // Routes
 
-
-
 // User
 
 app.get("/api/user", async (req, res) => {
@@ -31,24 +29,17 @@ app.get("/api/user", async (req, res) => {
   res.json(users);
 });
 
-app.get("/api/userclient", async (req, res) => {
-
-  const user = req.query.useremail;
-  
-  const users = await knex
-    .select("*")
-    .from("User")
-    .join("Client", "User.email", "Client.useremail")
-    .where("useremail", user)
+app.post("/api/authuser", async (req, res) => {
+  const users = await knex.select("*").from("User");
 
   res.json(users);
 });
 
 app.post("/api/user", (req, res) => {
   const user = {
-    email: "Enzo@gmail.com",
-    name: "Enzo",
-    password: "1234567",
+    name: req.query.name,
+    email: req.query.email,
+    password: req.query.password,
   };
 
   knex("User")
@@ -61,9 +52,29 @@ app.post("/api/user", (req, res) => {
     });
 });
 
+// Reminders
+
+app.get("/api/reminder", async (req, res) => {
+  const user = req.query.useremail;
+
+  const reminders = await knex
+    .select("id", "title", "ischecked")
+    .from("User")
+    .join("reminder", "User.email", "reminder.useremail")
+    .where("useremail", user);
+
+  res.json(reminders);
+});
+
 // Client
 app.get("/api/client", async (req, res) => {
-  const users = await knex.select("*").from("Client");
+  const user = req.query.useremail;
+
+  const users = await knex
+    .select("cpfcnpj", "address", "dateofbirth", "sex", "wallet", "maritalstatus", "spousename", "spousedateofbirth", "spousetype")
+    .from("User")
+    .join("Client", "User.email", "Client.useremail")
+    .where("useremail", user);
 
   res.json(users);
 });

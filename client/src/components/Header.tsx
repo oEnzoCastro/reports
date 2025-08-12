@@ -1,3 +1,6 @@
+"use client";
+
+import { logout } from "@/app/login/actions";
 import React from "react";
 
 export default function Header() {
@@ -25,14 +28,17 @@ export default function Header() {
       </div>
 
       {/* Perfil */}
-      <div className="flex justify-center items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-white/20">
+      <button
+        className="flex justify-center items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-white/20 text-white"
+        onClick={() => logout()}
+      >
         <img
           src="/"
           alt=""
           className="bg-white h-full aspect-square rounded-full"
         />
         <h1 className="text-xl">Adriana</h1>
-      </div>
+      </button>
     </header>
   );
 }
