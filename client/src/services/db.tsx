@@ -33,6 +33,22 @@ export async function createUser(name:string, email:string, password:string) {
   }
 }
 
+export async function fetchUser(email: string) {
+  
+  try {
+    const response = await fetch(`${url}/user?email=${email}`);
+    if (!response.ok) {
+      throw new Error(`Não foi possível buscar os dados de userclient`);
+    }
+    const data = await response.json();
+
+    return data[0];
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function authUser(email:string, password:string) {
   
   try {

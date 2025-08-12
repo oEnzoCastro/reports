@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const testUser = {
-  id: "gduiagd7u2",
   email: "enzocastru@gmail.com",
   password: "123456789",
 };
@@ -47,7 +46,7 @@ export async function login(prevState: any, formData: FormData) {
 
   // User is correct -> Create Session
 
-  await createSession(testUser.id);
+  await createSession(testUser.email);
 
   redirect("/");
 }
