@@ -26,27 +26,51 @@ function Dashboard() {
         <h2>Bem-vindo ao seu painel de controle</h2>
       </div>
 
+      {/* Total de Clientes */}
       <div className="flex flex-col gap-5">
-        <div className="rounded-md p-5 ring *:p-1">
-          <h1 className="flex items-center gap-3">
-            Total de Clientes
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 256 256"
-              className="h-5 fill-(--petrolBlue)"
+        <div className="flex gap-5">
+          <div className="rounded-md p-5 ring *:p-1">
+            <h1 className="flex items-center gap-3">
+              Total de Clientes
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 256 256"
+                className="h-5 fill-(--petrolBlue)"
+              >
+                <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+              </svg>
+            </h1>
+            <h2>{clients.length}</h2>
+            <a
+              href=""
+              className="hover:bg-(--petrolBlue)/20 rounded-md transition"
             >
-              <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
-            </svg>
-          </h1>
-          <h2>{clients.length}</h2>
-          <a
-            href=""
-            className="hover:bg-(--petrolBlue)/20 rounded-md transition"
-          >
-            Ver mais
-          </a>
+              Ver mais
+            </a>
+          </div>
+          {/* Add Cliente */}
+          <div className="rounded-md p-5 ring *:p-1">
+            <h1 className="flex items-center gap-3">
+              Adicionar Cliente
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 256 256"
+                className="h-5 fill-(--petrolBlue)"
+              >
+                <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+              </svg>
+            </h1>
+            <h2>{clients.length}</h2>
+            <a
+              href=""
+              className="hover:bg-(--petrolBlue)/20 rounded-md transition"
+            >
+              Ver mais
+            </a>
+          </div>
         </div>
 
+        {/* Tarefas Pendentes */}
         <div className="rounded-md p-5 ring *:p-1">
           <h1 className="flex items-center gap-3">
             Tarefas Pendentes

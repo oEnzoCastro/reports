@@ -24,15 +24,31 @@ app.get("/api", async (req, res) => {
 // User
 
 app.get("/api/user", async (req, res) => {
-  const users = await knex.select("*").from("User");
+  const users = await knex
+    .select("email", "name")
+    .from("User")
+    .where("email", req.query.email);
 
   res.json(users);
 });
 
-app.post("/api/authuser", async (req, res) => {
-  const users = await knex.select("*").from("User");
+app.get("/api/authuser", async (req, res) => {
+  (
+    await knex
+      .select("*")
+      .from("User")
+      .where("email", req.query.email)
+      .andWhere("password", req.query.password)
+  ).length > 0
+    ? res.json(true)
+    : res.json(false);
+});
 
-  res.json(users);
+app.get("/api/checkemail", async (req, res) => {
+  (await knex.select("*").from("User").where("email", req.query.email)).length >
+  0
+    ? res.json(true)
+    : res.json(false);
 });
 
 app.post("/api/user", (req, res) => {
@@ -71,7 +87,17 @@ app.get("/api/client", async (req, res) => {
   const user = req.query.useremail;
 
   const users = await knex
-    .select("cpfcnpj", "address", "dateofbirth", "sex", "wallet", "maritalstatus", "spousename", "spousedateofbirth", "spousetype")
+    .select(
+      "cpfcnpj",
+      "address",
+      "dateofbirth",
+      "sex",
+      "wallet",
+      "maritalstatus",
+      "spousename",
+      "spousedateofbirth",
+      "spousetype"
+    )
     .from("User")
     .join("Client", "User.email", "Client.useremail")
     .where("useremail", user);

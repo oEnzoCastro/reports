@@ -1,11 +1,12 @@
 "use server";
 
 import { createSession, deleteSession } from "@/lib/session";
-import { authUser } from "@/services/db";
+import { checkEmail, createUser } from "@/services/db";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const loginSchema = z.object({
+  name: z.string(),
   email: z.string().email({ message: "Invalid email address" }).trim(),
   password: z
     .string()
@@ -27,19 +28,20 @@ export async function login(prevState: any, formData: FormData) {
   // Passed validation
 
   // Get info from form
-  const { email, password } = result.data;
-
+  const { name, email, password } = result.data;
 
   // compare the info to the BD
-  if (await authUser(email, password) == false) {
+  if ((await checkEmail(email)) == true) {
     return {
       errors: {
-        password: ["Invalid email or password!"],
+        password: ["Usuário já existe!"],
       },
     };
   }
 
-  // User is correct -> Create Session
+  // User does not exist -> Create User -> Create Session
+
+  await createUser(name, email, password);
 
   await createSession(email);
 
@@ -47,7 +49,6 @@ export async function login(prevState: any, formData: FormData) {
 }
 
 export async function logout() {
-
-    await deleteSession()
-    redirect("/login")
+  await deleteSession();
+  redirect("/login");
 }

@@ -17,14 +17,22 @@ async function fetchData(endpoint: string) {
 
 // User
 
-export async function createUser(name:string, email:string, password:string) {
-  
+export async function createUser(
+  name: string,
+  email: string,
+  password: string
+) {
   try {
-    const response = await fetch(`${url}/user?name=${name}&email=${email}&password=${password}`);
+    const response = await fetch(
+      `${url}/user?name=${name}&email=${email}&password=${password}`,
+      { method: "POST" }
+    );
     if (!response.ok) {
       throw new Error(`Não foi possível buscar os dados de userclient`);
     }
     const data = await response.json();
+
+    console.log(data);
 
     return data;
   } catch (error) {
@@ -34,7 +42,6 @@ export async function createUser(name:string, email:string, password:string) {
 }
 
 export async function fetchUser(email: string) {
-  
   try {
     const response = await fetch(`${url}/user?email=${email}`);
     if (!response.ok) {
@@ -49,12 +56,28 @@ export async function fetchUser(email: string) {
   }
 }
 
-export async function authUser(email:string, password:string) {
-  
+export async function authUser(email: string, password: string) {
   try {
-    const response = await fetch(`${url}/authuser`);
+    const response = await fetch(
+      `${url}/authuser?email=${email}&password=${password}`
+    );
     if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de userclient`);
+      throw new Error(`Não foi possível buscar os dados de authUser`);
+    }
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function checkEmail(email: string) {
+  try {
+    const response = await fetch(`${url}/checkemail?email=${email}`);
+    if (!response.ok) {
+      throw new Error(`Não foi possível buscar os dados de checkEmail`);
     }
     const data = await response.json();
 

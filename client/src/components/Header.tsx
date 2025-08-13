@@ -1,20 +1,14 @@
-import { logout } from "@/app/login/actions";
 import { decrypt } from "@/lib/session";
 import { fetchUser } from "@/services/db";
 import { cookies } from "next/headers";
 import React from "react";
+import HeaderDropdown from "./HeaderDropdown";
 
 export default async function Header() {
-  const cookie = (await cookies()).get("session")?.value;
-  const session = await decrypt(cookie);
-
-  console.log(session);
+  const session = await decrypt((await cookies()).get("session")?.value);
 
   const userId = session?.userId;
   const user = await fetchUser(userId?.toString() || "");
-
-  console.log(user);
-  
 
   return (
     <header className="flex justify-between items-center bg-(--petrolBlue) p-2 shadow transition">
@@ -40,17 +34,7 @@ export default async function Header() {
       </div>
 
       {/* Perfil */}
-      <button
-        className="flex justify-center items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-white/20 text-white"
-        // onClick={() => logout()}
-      >
-        <img
-          src="/"
-          alt=""
-          className="bg-white h-full aspect-square rounded-full"
-        />
-        <h1 className="text-xl">{session !== undefined ? user.name : "Login"}</h1>
-      </button>
+      <HeaderDropdown user={user} />
     </header>
   );
 }
