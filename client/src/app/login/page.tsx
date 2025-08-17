@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { login } from "./actions";
+import { login } from "../../lib/actions";
 import { useFormStatus } from "react-dom";
 
 export default function page() {
@@ -30,7 +30,9 @@ export default function page() {
         </div>
         <div className="flex justify-around">
           <SubmitButton />
-          <a href="/signin" className="hover:underline px-4">Criar conta</a>
+          <a href="/signin" className="hover:underline px-4">
+            Criar conta
+          </a>
         </div>
       </form>
     </div>
@@ -41,7 +43,11 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button type="submit" disabled={pending} className="cursor-pointer px-4 py-1 rounded-md bg-black/20">
+    <button
+      type="submit"
+      disabled={pending}
+      className="cursor-pointer px-4 py-1 rounded-md bg-black/20"
+    >
       Login
     </button>
   );

@@ -3,21 +3,10 @@ import { fetchClient, fetchReminder } from "@/services/db";
 import React, { useEffect, useState } from "react";
 import Aside from "./Aside";
 
-function Dashboard() {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [reminders, setReminders] = useState<Reminder[]>([]);
+function Dashboard({ userClients }: { userClients: Client[] }) {
 
-  async function getUser() {
-    setClients(await fetchClient("enzocastru@gmail.com"));
-  }
-  async function getReminder() {
-    setReminders(await fetchReminder("enzocastru@gmail.com"));
-  }
-
-  useEffect(() => {
-    getUser();
-    getReminder();
-  }, []);
+  const clients: Client[] = userClients;
+  const reminders: Reminder[] = [];
 
   return (
     <section className="px-10 py-5 text-(--petrolBlue)">
@@ -49,7 +38,7 @@ function Dashboard() {
             </a>
           </div>
           {/* Add Cliente */}
-          <div className="rounded-md p-5 ring *:p-1">
+          <div className="flex flex-col items-center rounded-md p-5 ring *:p-1">
             <h1 className="flex items-center gap-3">
               Adicionar Cliente
               <svg
@@ -57,16 +46,18 @@ function Dashboard() {
                 viewBox="0 0 256 256"
                 className="h-5 fill-(--petrolBlue)"
               >
-                <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+                <path d="M168,56a8,8,0,0,1,8-8h16V32a8,8,0,0,1,16,0V48h16a8,8,0,0,1,0,16H208V80a8,8,0,0,1-16,0V64H176A8,8,0,0,1,168,56Zm62.56,54.68a103.92,103.92,0,1,1-85.24-85.24,8,8,0,0,1-2.64,15.78A88.07,88.07,0,0,0,40,128a87.62,87.62,0,0,0,22.24,58.41A79.66,79.66,0,0,1,98.3,157.66a48,48,0,1,1,59.4,0,79.66,79.66,0,0,1,36.06,28.75A87.62,87.62,0,0,0,216,128a88.85,88.85,0,0,0-1.22-14.68,8,8,0,1,1,15.78-2.64ZM128,152a32,32,0,1,0-32-32A32,32,0,0,0,128,152Zm0,64a87.57,87.57,0,0,0,53.92-18.5,64,64,0,0,0-107.84,0A87.57,87.57,0,0,0,128,216Z"></path>
               </svg>
             </h1>
-            <h2>{clients.length}</h2>
-            <a
-              href=""
-              className="hover:bg-(--petrolBlue)/20 rounded-md transition"
-            >
-              Ver mais
-            </a>
+            <button className="flex justify-center items-center w-2/3 h-full cursor-pointer bg-(--petrolBlue)/10 hover:bg-(--petrolBlue)/20 rounded-md transition">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 256 256"
+                className="h-5 fill-(--petrolBlue)"
+              >
+                <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -110,11 +101,10 @@ function Dashboard() {
   );
 }
 
-export default function MainBody() {
+export default function MainBody({userClients}: {userClients: Client[]}) {
   return (
     <div className="flex">
-      <Aside />
-      <Dashboard />
+      <Dashboard userClients={userClients} />
     </div>
   );
 }

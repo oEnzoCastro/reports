@@ -103,6 +103,28 @@ export async function fetchClient(userEmail: string) {
   }
 }
 
+export async function postClient(newClient: any) {
+
+  try {
+    const response = await fetch(`http://localhost:5000/api/client`, {
+      method: "POST",
+      body: JSON.stringify(newClient),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Não foi possível buscar os dados de userclient: ` + response.statusText);
+    }
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function fetchReminder(userEmail: string) {
   try {
     const response = await fetch(`${url}/reminder?useremail=${userEmail}`);

@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/app/login/actions";
+import { logout } from "@/lib/actions";
 import { useState } from "react";
 
 type HeaderDropdownProps = {

@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from "react";
 
 export default function Aside() {
@@ -45,7 +47,7 @@ export default function Aside() {
           </li>
           <li>
             <a
-              href="/"
+              href="/clients"
               className="flex flex-nowrap items-center gap-2 py-1 px-2"
             >
               <svg

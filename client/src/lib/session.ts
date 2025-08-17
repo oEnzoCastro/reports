@@ -8,6 +8,12 @@ if (!secretKey) {
 }
 const encodedKey = new TextEncoder().encode(secretKey);
 
+export async function getSession() {
+  const cookie = (await cookies()).get("session")?.value;
+  const session = await decrypt(cookie);
+  return session;
+}
+
 export async function createSession(userId: string) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 Days
 

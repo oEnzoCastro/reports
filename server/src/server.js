@@ -3,6 +3,7 @@ const cors = require("cors");
 const app = express();
 
 app.use(cors({ origin: "*" }));
+app.use(express.json());
 
 const knex = require("knex")({
   client: "pg",
@@ -88,15 +89,16 @@ app.get("/api/client", async (req, res) => {
 
   const users = await knex
     .select(
-      "cpfcnpj",
-      "address",
-      "dateofbirth",
-      "sex",
-      "wallet",
-      "maritalstatus",
-      "spousename",
-      "spousedateofbirth",
-      "spousetype"
+      "Client.name",
+      "Client.cpfcnpj",
+      "Client.address",
+      "Client.dateofbirth",
+      "Client.sex",
+      "Client.wallet",
+      "Client.maritalstatus",
+      "Client.spousename",
+      "Client.spousedateofbirth",
+      "Client.spousetype"
     )
     .from("User")
     .join("Client", "User.email", "Client.useremail")
@@ -106,19 +108,7 @@ app.get("/api/client", async (req, res) => {
 });
 
 app.post("/api/client", (req, res) => {
-  const client = {
-    cpfcnpj: "125125125",
-    name: "Duda",
-    address: "Av Professor, 456",
-    dateofbirth: "2004-05-02",
-    sex: "F",
-    wallet: 1235136.3561,
-    maritalstatus: "Namorando",
-    spousename: "Enzo",
-    spousedateofbirth: "2004-05-13",
-    spousetype: "Ainda Nada",
-    useremail: "enzocastru@gmail.com",
-  };
+  const client = req.body;
 
   knex("Client")
     .insert(client)
