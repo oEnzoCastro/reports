@@ -8,10 +8,10 @@ export default function page() {
   const [state, loginAction] = useActionState(login, undefined);
 
   return (
-    <div className="flex justify-center text-(--petrolBlue)">
+    <div className="flex items-center w-full justify-center text-(--petrolBlue)">
       <form
         action={loginAction}
-        className="flex flex-col gap-5 bg-(--petrolBlue) text-white p-10 mt-10 text-[5dvh] rounded-md"
+        className="flex flex-col gap-5 bg-(--petrolBlue) text-white p-10 text-[5dvh] rounded-md"
       >
         <div className="flex flex-col *:rounded-md *:px-3 gap-5 *:bg-white justify-center items-start text-(--petrolBlue)">
           <input id="email" name="email" type="email" placeholder="Email" />

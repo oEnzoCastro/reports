@@ -150,9 +150,20 @@ app.get("/api/reportalreadyachieved", async (req, res) => {
 });
 
 app.get("/api/report", async (req, res) => {
-  const report = req.query.report;
-
-  const users = await knex.select("*").from("Report").where("id", report);
+  const users = await knex("Report as R")
+    .select(
+      "R.*",
+      "T.title AS ToBeAchievedTitle",
+      "T.description AS ToBeAchievedDescription",
+      "T.date AS ToBeAchievedDate",
+      "A.title AS AlreadyAchievedTitle",
+      "A.description AS AlreadyAchievedDescription",
+      "A.date AS AlreadyAchievedDate"
+    )
+    .from("Report as R")
+    .leftJoin("ToBeAchieved as T", "R.id", "T.reportid")
+    .leftJoin("AlreadyAchieved as A", "R.id", "A.reportid")
+    .where("R.clientcpfcnpj", req.query.clientcpfcnpj);
 
   res.json(users);
 });
@@ -163,7 +174,7 @@ app.post("/api/report", async (req, res) => {
     summary:
       "IASHFIOHWAOUFIDHNAWOHSIUOHIOFHAWIOFJOWANFIOWAHNF AWIOFJHwifhawoifioawhnfo Wfoiwhna",
     date: "2025-07-24",
-    clientcpfcnpj: "125125125",
+    clientcpfcnpj: "12345678900",
   };
 
   knex("Report")

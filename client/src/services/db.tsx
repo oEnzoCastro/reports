@@ -125,6 +125,21 @@ export async function postClient(newClient: any) {
   }
 }
 
+export async function fetchReport(clientCpfCnpj: string) {
+  try {
+    const response = await fetch(`${url}/report?clientcpfcnpj=${clientCpfCnpj}`);
+    if (!response.ok) {
+      throw new Error(`Não foi possível buscar os dados de fetchReport`);
+    }
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function fetchReminder(userEmail: string) {
   try {
     const response = await fetch(`${url}/reminder?useremail=${userEmail}`);

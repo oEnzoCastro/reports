@@ -8,7 +8,7 @@ export default function page() {
   const [state, loginAction] = useActionState(login, undefined);
 
   return (
-    <div className="flex justify-center text-(--petrolBlue)">
+    <div className="flex items-center w-full justify-center text-(--petrolBlue)">
       <form
         action={loginAction}
         className="flex flex-col gap-5 bg-(--petrolBlue) text-white p-10 mt-10 text-[5dvh] rounded-md"
