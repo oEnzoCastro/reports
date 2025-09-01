@@ -3,7 +3,8 @@
 import React, { useActionState, useEffect, useState } from "react";
 import "@/app/clients/style.css"; // Assuming you have a CSS file for styles
 import { createClient } from "@/lib/actions";
-import { fetchReport } from "@/services/db";
+import { fetchArticle } from "@/services/db";
+import TextEditor from "./TextEditor";
 
 export default function Clients({ userClients }: any) {
   const [isAddClientOpen, setIsAddClientOpen] = React.useState(false);
@@ -232,17 +233,18 @@ function ClientCard({ userClient, setSelectedClient }: any) {
 }
 
 function ClientSection({ userClient }: any) {
-  console.log(userClient);
-
-  const [reports, setReports] = useState<any[]>([]);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [article, setArticle] = useState<any>(null);
 
   useEffect(() => {
-    const fetchReports = async () => {
-      const data = await fetchReport(userClient.cpfcnpj);
-      setReports(data);
+    const fetchArticles = async () => {
+      const data = await fetchArticle(userClient.cpfcnpj);
+      setArticles(data);
     };
-
-    fetchReports();
+    
+    setArticle(null);
+    
+    fetchArticles();
   }, [userClient.cpfcnpj]);
 
   return (
@@ -260,7 +262,9 @@ function ClientSection({ userClient }: any) {
           </div>
           <div>
             <div>
-              <h1 className="border-b border-(--petrolBlue)/20 font-semibold">Nome:</h1>
+              <h1 className="border-b border-(--petrolBlue)/20 font-semibold">
+                Nome:
+              </h1>
               <h1>{userClient.name}</h1>
             </div>
             <div>
@@ -303,27 +307,43 @@ function ClientSection({ userClient }: any) {
         </div>
       </div>
 
+      {/* Reports Section */}
       <div className="flex flex-col gap-5 ring ring-(--petrolBlue)/10 p-5">
         <h1 className="font-semibold px-4 py-1 rounded-md bg-(--petrolBlue)/20">
           Relatórios:
         </h1>
         <div className="flex gap-4">
-          {reports.map((report, index) => {
-            return <ReportCard key={`report${index}`} report={report} />;
+          {articles.map((article, index) => {
+            return (
+              <ReportCard
+                key={`report${index}`}
+                article={article}
+                setArticle={setArticle}
+              />
+            );
           })}
         </div>
       </div>
+
+        <div>{article && <TextEditor article={article} />}</div>
+
     </div>
   );
 }
 
-function ReportCard({ report }: any) {
+function ReportCard({ article, setArticle }: any) {
+
+  
+
   return (
-    <div className="bg-(--petrolBlue)/10 p-4 rounded-md w-50 ">
-      <h2 className="font-semibold">{report.title}</h2>
+    <button
+      onClick={() => setArticle(article)}
+      className="flex flex-col text-start bg-(--petrolBlue)/10 p-4 rounded-md w-50 cursor-pointer"
+    >
+      <h1 className="font-semibold">{article.title}</h1>
       <p className="text-nowrap overflow-hidden text-ellipsis">
-        {report.summary}
+        {article.summary}
       </p>
-    </div>
+    </button>
   );
 }

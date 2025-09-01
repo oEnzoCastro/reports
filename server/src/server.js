@@ -149,7 +149,7 @@ app.get("/api/reportalreadyachieved", async (req, res) => {
   res.json(users);
 });
 
-app.get("/api/report", async (req, res) => {
+app.get("/api/article", async (req, res) => {
   const users = await knex("Report as R")
     .select(
       "R.*",
@@ -168,13 +168,12 @@ app.get("/api/report", async (req, res) => {
   res.json(users);
 });
 
-app.post("/api/report", async (req, res) => {
+app.post("/api/article", async (req, res) => {
   const report = {
-    title: "Teste",
-    summary:
-      "IASHFIOHWAOUFIDHNAWOHSIUOHIOFHAWIOFJOWANFIOWAHNF AWIOFJHwifhawoifioawhnfo Wfoiwhna",
-    date: "2025-07-24",
-    clientcpfcnpj: "12345678900",
+    title: req.body.title,
+    summary: req.body.summary,
+    date: req.body.date,
+    clientcpfcnpj: req.body.clientcpfcnpj,
   };
 
   knex("Report")
@@ -184,6 +183,29 @@ app.post("/api/report", async (req, res) => {
     })
     .catch((error) => {
       res.status(500).json({ error: "Failed to create report." }); // Handle errors
+    });
+});
+
+app.put("/api/article/:id", async (req, res) => {
+  const { id } = req.params;
+  const { summary } = req.body;
+
+  if (!summary) {
+    return res.status(400).json({ error: "Summary is required to update." });
+  }
+
+  knex("Report")
+    .where({ id: id })
+    .update({ summary: summary })
+    .then((count) => {
+      if (count > 0) {
+        res.json({ message: "Report summary updated successfully!" });
+      } else {
+        res.status(404).json({ error: "Report not found." });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Failed to update report summary." });
     });
 });
 
