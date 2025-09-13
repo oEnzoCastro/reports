@@ -27,9 +27,7 @@ export async function createSession(userId: string) {
 }
 
 export async function deleteSession() {
-
-    (await cookies()).delete('session')
-
+  (await cookies()).delete("session");
 }
 
 type SessionPayload = {
@@ -47,11 +45,16 @@ export async function encrypt(payload: SessionPayload) {
 
 export async function decrypt(session: string | undefined = "") {
   try {
+    if (!session) {
+      console.log("No session provided to decrypt");
+      return undefined;
+    }
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],
     });
     return payload;
-  } catch {
-    // console.log("Failed to verify session!");
+  } catch (error) {
+    console.log("Failed to verify session:", error);
+    return undefined;
   }
 }

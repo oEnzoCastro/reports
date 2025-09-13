@@ -1,11 +1,18 @@
 type Client = {
-        cpfcnpj: string,
-        address: string,
-        dateofbirth: Date,
-        sex: string,
-        wallet: number,
-        maritalstatus: string,
-        spousename: string,
-        spousedateofbirth: Date,
-        spousetype: string
-}
+  name: string;
+  email: string;
+  profession: string;
+  phoneNumber: string;
+  gender: string;
+  birthDate: Date;
+  maritalStatus: string;
+  address: string;
+  addressNumber: string;
+  addressComplement: string;
+  partnerName: string;
+  partnerPhoneNumber: string;
+  partnerEmail: string;
+  partnerGender: string;
+  partnerProfession: string;
+  partnerBirthDate: Date;
+};

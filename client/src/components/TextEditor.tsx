@@ -54,14 +54,14 @@ export default function TextEditor({ article }: any) {
   }, [article, editor]);
 
   return (
-    <div className="flex flex-col gap-5 ring ring-(--petrolBlue)/10 p-5">
-      <input className="font-semibold px-4 py-1 rounded-md bg-(--petrolBlue)/20" />
+    <div className="flex flex-col gap-5 ring ring-(--primary)/10 p-5">
+      <input className="font-semibold px-4 py-1 rounded-md bg-(--primary)/20" placeholder="Title:" />
 
       <TextEditorMenuBar editor={editor} />
       <EditorContent editor={editor} />
       <button
         onClick={() => sendArticle(article.id, editor?.getHTML() || "")}
-        className="bg-(--petrolBlue) text-white px-2 py-1 rounded-md cursor-pointer"
+        className="bg-(--primary) text-white px-2 py-1 rounded-md cursor-pointer"
       >
         Send
       </button>

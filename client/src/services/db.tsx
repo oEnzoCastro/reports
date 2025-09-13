@@ -1,178 +1,64 @@
-const url = "http://localhost:5000/api";
+const url = "http://localhost:3001";
 
-async function fetchData(endpoint: string) {
+export async function getUser(email: string) {
   try {
-    const response = await fetch(`${url}/${endpoint}`);
+
+    if (!email) {
+      return null;
+    }
+
+    // Check if the parameter looks like an email or an ID
+    const queryParam = `email=${email}`;
+
+    const response = await fetch(`${url}/user?${queryParam}`);
+
     if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de ${endpoint}`);
+      return false;
     }
     const data = await response.json();
 
     return data;
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error("Error in getUser:", error);
+    return null;
   }
 }
 
-// User
-
-export async function createUser(
-  name: string,
-  email: string,
-  password: string
-) {
+export async function postUser(name: string, email: string, password: string) {
   try {
-    const response = await fetch(
-      `${url}/user?name=${name}&email=${email}&password=${password}`,
-      { method: "POST" }
-    );
+    const response = await fetch(`${url}/user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        password: password,
+      }),
+    });
+
     if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de userclient`);
+      return null;
+    } else {
+      return response.statusText;
     }
-    const data = await response.json();
-
-    console.log(data);
-
-    return data;
   } catch (error) {
     console.error(error);
-    throw error;
-  }
-}
-
-export async function fetchUser(email: string) {
-  try {
-    const response = await fetch(`${url}/user?email=${email}`);
-    if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de userclient`);
-    }
-    const data = await response.json();
-
-    return data[0];
-  } catch (error) {
-    console.error(error);
-    throw error;
+    return null;
   }
 }
 
 export async function authUser(email: string, password: string) {
   try {
     const response = await fetch(
-      `${url}/authuser?email=${email}&password=${password}`
+      `${url}/auth?email=${email}&password=${password}`
     );
     if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de authUser`);
+      return false;
     }
-    const data = await response.json();
 
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export async function checkEmail(email: string) {
-  try {
-    const response = await fetch(`${url}/checkemail?email=${email}`);
-    if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de checkEmail`);
-    }
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export async function fetchClient(userEmail: string) {
-  try {
-    const response = await fetch(`${url}/client?useremail=${userEmail}`);
-    if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de userclient`);
-    }
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export async function postClient(newClient: any) {
-  try {
-    const response = await fetch(`http://localhost:5000/api/client`, {
-      method: "POST",
-      body: JSON.stringify(newClient),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      throw new Error(
-        `Não foi possível buscar os dados de userclient: ` + response.statusText
-      );
-    }
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export async function fetchArticle(clientCpfCnpj: string) {
-  try {
-    const response = await fetch(
-      `${url}/article?clientcpfcnpj=${clientCpfCnpj}`
-    );
-    if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de fetchArticle`);
-    }
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export async function sendArticle(id: number, summary: string) {
-  try {
-    const response = await fetch(`${url}/article/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({ summary: summary }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de fetchArticle`);
-    }
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export async function fetchReminder(userEmail: string) {
-  try {
-    const response = await fetch(`${url}/reminder?useremail=${userEmail}`);
-    if (!response.ok) {
-      throw new Error(`Não foi possível buscar os dados de userreminder`);
-    }
-    const data = await response.json();
-
-    return data;
+    return true;
   } catch (error) {
     console.error(error);
     throw error;

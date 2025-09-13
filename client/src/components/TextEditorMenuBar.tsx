@@ -106,7 +106,7 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
           key={index}
           className={`p-1 rounded-md cursor-pointer ${
             option.pressed
-              ? "bg-(--petrolBlue) text-white"
+              ? "bg-(--primary) text-white"
               : "bg-transparent"
           }`}
           onClick={option.onClick}

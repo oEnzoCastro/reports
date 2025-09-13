@@ -1,7 +1,8 @@
 "use server";
 
 import { createSession, deleteSession } from "@/lib/session";
-import { checkEmail, createUser } from "@/services/db";
+import { getUser, postUser } from "@/services/db";
+// import { checkEmail, createUser } from "@/services/db";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -28,20 +29,20 @@ export async function login(prevState: any, formData: FormData) {
   // Passed validation
 
   // Get info from form
-  const { name, email, password } = result.data;
+  const { email, name, password } = result.data;
 
   // compare the info to the BD
-  if ((await checkEmail(email)) == true) {
+  if ((await getUser(email)) !== false) {
     return {
       errors: {
-        password: ["Usuário já existe!"],
+        email: ["Usuário já existe!"],
       },
     };
   }
 
   // User does not exist -> Create User -> Create Session
 
-  await createUser(name, email, password);
+  await postUser(name, email, password);
 
   await createSession(email);
 

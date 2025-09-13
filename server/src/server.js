@@ -1,293 +1,164 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
+const { createClient } = require("@supabase/supabase-js");
+require("dotenv").config();
 
-app.use(cors({ origin: "*" }));
+// Supabase configuration
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Missing Supabase environment variables");
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-const knex = require("knex")({
-  client: "pg",
-  connection: {
-    host: "localhost",
-    port: 5432,
-    user: "postgres",
-    password: "SenhaPostgres",
-    database: "adriana",
-  },
+// Basic health check route
+app.get("/", (req, res) => {
+  res.json({ message: "Server is running!" });
 });
 
-app.get("/api", async (req, res) => {
-  res.json();
-});
+/********************************************
+ *                    Users                 *
+ *******************************************/
 
-// Routes
+// GET
+app.get("/user", async (req, res) => {
+  const email = req.query.email;
 
-// User
+  try {
+    let query = supabase.from("users").select("email, name, photo, logo");
 
-app.get("/api/user", async (req, res) => {
-  const users = await knex
-    .select("email", "name")
-    .from("User")
-    .where("email", req.query.email);
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "User authentication is required",
+      });
+    }
+    query = query.eq("email", email);
 
-  res.json(users);
-});
+    const { data, error } = await query;
 
-app.get("/api/authuser", async (req, res) => {
-  (
-    await knex
-      .select("*")
-      .from("User")
-      .where("email", req.query.email)
-      .andWhere("password", req.query.password)
-  ).length > 0
-    ? res.json(true)
-    : res.json(false);
-});
+    if (error) {
+      console.error("Error fetching user:", error);
+      return res.status(500).json({
+        error: "Failed to fetch user",
+        details: error.message,
+      });
+    }
 
-app.get("/api/checkemail", async (req, res) => {
-  (await knex.select("*").from("User").where("email", req.query.email)).length >
-  0
-    ? res.json(true)
-    : res.json(false);
-});
+    if (data.length === 0) {
+      const message = "User not found";
+      return res.status(404).json({
+        success: false,
+        message: message,
+      });
+    }
 
-app.post("/api/user", (req, res) => {
-  const user = {
-    name: req.query.name,
-    email: req.query.email,
-    password: req.query.password,
-  };
-
-  knex("User")
-    .insert(user)
-    .then(() => {
-      res.status(201).json({ message: "User created successfully!" }); // Send a success response
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Failed to create user." }); // Handle errors
+    res.json(data[0]);
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
     });
+  }
 });
 
-// Reminders
+// POST
+app.post("/user", async (req, res) => {
+  const { name, email, password } = req.body;
 
-app.get("/api/reminder", async (req, res) => {
-  const user = req.query.useremail;
-
-  const reminders = await knex
-    .select("id", "title", "ischecked")
-    .from("User")
-    .join("reminder", "User.email", "reminder.useremail")
-    .where("useremail", user);
-
-  res.json(reminders);
-});
-
-// Client
-app.get("/api/client", async (req, res) => {
-  const user = req.query.useremail;
-
-  const users = await knex
-    .select(
-      "Client.name",
-      "Client.cpfcnpj",
-      "Client.address",
-      "Client.dateofbirth",
-      "Client.sex",
-      "Client.wallet",
-      "Client.maritalstatus",
-      "Client.spousename",
-      "Client.spousedateofbirth",
-      "Client.spousetype"
-    )
-    .from("User")
-    .join("Client", "User.email", "Client.useremail")
-    .where("useremail", user);
-
-  res.json(users);
-});
-
-app.post("/api/client", (req, res) => {
-  const client = req.body;
-
-  knex("Client")
-    .insert(client)
-    .then(() => {
-      res.status(201).json({ message: "Client created successfully!" }); // Send a success response
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Failed to create client." }); // Handle errors
+  if (!name || !email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Name, email, and password are required",
     });
-});
-
-// Report
-
-app.get("/api/reportnote", async (req, res) => {
-  const users = await knex
-    .select("*")
-    .from("Report")
-    .join("Note", "Report.id", "Note.reportid");
-
-  res.json(users);
-});
-
-app.get("/api/reporttobeachieved", async (req, res) => {
-  const users = await knex
-    .select("*")
-    .from("Report")
-    .join("ToBeAchieved", "Report.id", "ToBeAchieved.reportid");
-
-  res.json(users);
-});
-
-app.get("/api/reportalreadyachieved", async (req, res) => {
-  const users = await knex
-    .select("*")
-    .from("Report")
-    .join("AlreadyAchieved", "Report.id", "AlreadyAchieved.reportid");
-
-  res.json(users);
-});
-
-app.get("/api/article", async (req, res) => {
-  const users = await knex("Report as R")
-    .select(
-      "R.*",
-      "T.title AS ToBeAchievedTitle",
-      "T.description AS ToBeAchievedDescription",
-      "T.date AS ToBeAchievedDate",
-      "A.title AS AlreadyAchievedTitle",
-      "A.description AS AlreadyAchievedDescription",
-      "A.date AS AlreadyAchievedDate"
-    )
-    .from("Report as R")
-    .leftJoin("ToBeAchieved as T", "R.id", "T.reportid")
-    .leftJoin("AlreadyAchieved as A", "R.id", "A.reportid")
-    .where("R.clientcpfcnpj", req.query.clientcpfcnpj);
-
-  res.json(users);
-});
-
-app.post("/api/article", async (req, res) => {
-  const report = {
-    title: req.body.title,
-    summary: req.body.summary,
-    date: req.body.date,
-    clientcpfcnpj: req.body.clientcpfcnpj,
-  };
-
-  knex("Report")
-    .insert(report)
-    .then(() => {
-      res.status(201).json({ message: "Report created successfully!" }); // Send a success response
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Failed to create report." }); // Handle errors
-    });
-});
-
-app.put("/api/article/:id", async (req, res) => {
-  const { id } = req.params;
-  const { summary } = req.body;
-
-  if (!summary) {
-    return res.status(400).json({ error: "Summary is required to update." });
   }
 
-  knex("Report")
-    .where({ id: id })
-    .update({ summary: summary })
-    .then((count) => {
-      if (count > 0) {
-        res.json({ message: "Report summary updated successfully!" });
-      } else {
-        res.status(404).json({ error: "Report not found." });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Failed to update report summary." });
+  try {
+    const { data, error } = await supabase.from("users").insert([
+      {
+        name: name,
+        email: email,
+        password: password,
+      },
+    ]);
+
+    if (error) {
+      console.error("Error creating user:", error);
+      return res.status(500).json({
+        error: "Failed to create user",
+        details: error.message,
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
     });
-});
-
-// Note
-app.get("/api/note", async (req, res) => {
-  const users = await knex.select("*").from("Note");
-
-  res.json(users);
-});
-
-app.post("/api/note", async (req, res) => {
-  const note = {
-    note: "AUWGHFUIWAHFUIGWAUIFGWAUIGFUIWAGFUIGWAUIFGWUAIGH FUWGAIU!!!",
-    reportid: 1,
-  };
-
-  knex("Note")
-    .insert(note)
-    .then(() => {
-      res.status(201).json({ message: "Note created successfully!" }); // Send a success response
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Failed to create note." }); // Handle errors
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
     });
+  }
 });
 
-// To Be Achieved
-app.get("/api/tobeachieved", async (req, res) => {
-  const users = await knex.select("*").from("ToBeAchieved");
+// AUTH
+app.get("/auth", async (req, res) => {
+  const email = req.query.email;
+  const password = req.query.password;
 
-  res.json(users);
-});
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("email, name, photo, logo")
+      .eq("email", email)
+      .eq("password", password);
 
-app.post("/api/tobeachieved", async (req, res) => {
-  const tobeachieved = {
-    title: "Teste21412",
-    description:
-      "IASHFIOHWAOUFIDHNAWOHSIUOHIOFHAWIOFJOWANFIOWAHNF AWIOFJHwifhawoifioawhnfo Wfoiwhna",
-    date: "2025-07-24",
-    reportid: 1,
-  };
+    if (error) {
+      console.error("Error fetching users:", error);
+      return res.status(500).json({
+        error: "Failed to fetch users",
+        details: error.message,
+      });
+    }
 
-  knex("ToBeAchieved")
-    .insert(tobeachieved)
-    .then(() => {
-      res.status(201).json({ message: "To Be Achieved created successfully!" }); // Send a success response
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Failed to create To Be Achieved." }); // Handle errors
+    if (data.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: data[0],
     });
-});
-
-// Already Achieved
-app.get("/api/alreadyachieved", async (req, res) => {
-  const users = await knex.select("*").from("AlreadyAchieved");
-
-  res.json(users);
-});
-
-app.post("/api/alreadyachieved", async (req, res) => {
-  const alreadyachieved = {
-    title: "Teste21412",
-    description:
-      "IASHFIOHWAOUFIDHNAWOHSIUOHIOFHAWIOFJOWANFIOWAHNF AWIOFJHwifhawoifioawhnfo Wfoiwhna",
-    date: "2025-07-24",
-    reportid: 1,
-  };
-
-  knex("AlreadyAchieved")
-    .insert(alreadyachieved)
-    .then(() => {
-      res
-        .status(201)
-        .json({ message: "Already Achieved created successfully!" }); // Send a success response
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Failed to create Already Achieved." }); // Handle errors
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
     });
+  }
 });
 
-// -----
+/**********************************************
+ *                    Clients                 *
+ *********************************************/
 
-app.listen(5000, () => {
-  console.log("Server started at port 5000");
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

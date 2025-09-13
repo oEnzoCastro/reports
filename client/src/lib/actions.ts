@@ -1,7 +1,8 @@
 "use server";
 
 import { createSession, decrypt, deleteSession } from "@/lib/session";
-import { authUser, postClient } from "@/services/db";
+import { authUser } from "@/services/db";
+// import { authUser, postClient } from "@/services/db";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -53,7 +54,6 @@ export async function login(prevState: any, formData: FormData) {
   }
 
   // User is correct -> Create Session
-
   await createSession(email);
 
   redirect("/");
@@ -62,37 +62,4 @@ export async function login(prevState: any, formData: FormData) {
 export async function logout() {
   await deleteSession();
   redirect("/login");
-}
-
-export async function createClient(prevState: any, formData: FormData) {
-  const result = createClientSchema.safeParse(Object.fromEntries(formData));
-
-  // Check form validation
-
-  if (!result.success) {
-    return {
-      errors: result.error.flatten().fieldErrors,
-    };
-  }
-
-  // Passed validation
-
-  // Get info from form
-
-  const session = await decrypt((await cookies()).get("session")?.value);
-
-  const userId = session?.userId;
-
-  const newClient = {
-    ...result.data,
-    wallet: 0,
-    spousename: "",
-    spousedateofbirth: new Date(),
-    spousetype: "",
-    useremail: userId?.toString() || "",
-  };
-
-  // Save the new client to the database
-  await postClient(newClient);
-  revalidatePath("/clients");
 }
