@@ -158,6 +158,43 @@ app.get("/auth", async (req, res) => {
  *                    Clients                 *
  *********************************************/
 
+app.get("/clients", async (req, res) => {
+  const user = req.query.user;
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "User authentication is required",
+    });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("clients")
+      .select("id, name, profession, gender")
+      .eq("useremail", user);
+
+    if (error) {
+      console.error("Error fetching clients:", error);
+      return res.status(500).json({
+        error: "Failed to fetch clients",
+        details: error.message,
+      });
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
+    });
+  }
+});
+
+/**********************************************
+ *                    End                     *
+ *********************************************/
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

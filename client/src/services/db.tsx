@@ -2,7 +2,6 @@ const url = "http://localhost:3001";
 
 export async function getUser(email: string) {
   try {
-
     if (!email) {
       return null;
     }
@@ -62,5 +61,24 @@ export async function authUser(email: string, password: string) {
   } catch (error) {
     console.error(error);
     throw error;
+  }
+}
+
+
+// Clients
+
+export async function getClients(user: string) {
+
+  try {
+    const response = await fetch(`${url}/clients?user=${user}`);
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in getClients:", error);
+    return [];
   }
 }
