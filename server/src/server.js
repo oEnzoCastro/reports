@@ -191,6 +191,86 @@ app.get("/clients", async (req, res) => {
   }
 });
 
+app.post("/client", async (req, res) => {
+  const {
+    name,
+    profession,
+    email,
+    phonenumber,
+    gender,
+    birthdate,
+    maritalstatus,
+    address,
+    addressnumber,
+    addresscomplement,
+    partnername,
+    partneremail,
+    partnerphonenumber,
+    partnergender,
+    partnerprofession,
+    partnerbirthdate,
+    useremail
+  } = req.body;
+
+  // if (
+  //   !name ||
+  //   !email ||
+  //   !phonenumber ||
+  //   !gender ||
+  //   !birthdate ||
+  //   !maritalstatus ||
+  //   !profession
+  // ) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "All fields are required",
+  //   });
+  // }
+
+  try {
+    const { data, error } = await supabase.from("clients").insert([
+      {
+        name,
+        profession,
+        email,
+        phonenumber,
+        gender,
+        birthdate,
+        maritalstatus,
+        address,
+        addressnumber,
+        addresscomplement,
+        partnername,
+        partneremail,
+        partnerphonenumber,
+        partnergender,
+        partnerprofession,
+        partnerbirthdate,
+        useremail
+      },
+    ]);
+
+    if (error) {
+      console.error("Error creating client:", error);
+      return res.status(500).json({
+        error: "Failed to create client",
+        details: error.message,
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Client created successfully",
+    });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
+    });
+  }
+});
+
 /**********************************************
  *                    End                     *
  *********************************************/

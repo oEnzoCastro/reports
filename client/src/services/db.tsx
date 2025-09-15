@@ -64,11 +64,9 @@ export async function authUser(email: string, password: string) {
   }
 }
 
-
 // Clients
 
 export async function getClients(user: string) {
-
   try {
     const response = await fetch(`${url}/clients?user=${user}`);
     if (!response.ok) {
@@ -80,5 +78,25 @@ export async function getClients(user: string) {
   } catch (error) {
     console.error("Error in getClients:", error);
     return [];
+  }
+}
+
+export async function postClient(client: any) {
+  try {
+    const response = await fetch(`${url}/client`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(client),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in postClient:", error);
+    return null;
   }
 }
