@@ -1,6 +1,6 @@
 import React from "react";
 import "@/app/clients/style.css";
-import ClientsPageWrapper from "@/components/ClientsPageWrapper";
+import ClientsPageWrapper from "@/components/Clients/ClientsPageWrapper";
 import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
 

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import ClientCard from "./ClientCard";
 import { getClients } from "@/services/db";
+import CreateClient from "./CreateClient";
 
 interface Client {
   id: string;
@@ -13,14 +14,14 @@ interface Client {
 
 interface ClientsAsideProps {
   onClientSelect?: (client: Client) => void;
-  onAddClient?: () => void;
   onClose?: () => void;
+  isOpen?: boolean;
 }
 
 export default function ClientsAside({
   onClientSelect,
-  onAddClient,
   onClose,
+  isOpen = true,
 }: ClientsAsideProps) {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,24 +53,9 @@ export default function ClientsAside({
         <div className="clients-aside__header-top">
           <h2 className="clients-aside__title">Clientes</h2>
           <div className="clients-aside__header-buttons">
-            <button
-              className="clients-aside__add-button"
-              onClick={onAddClient}
-              title="Adicionar novo cliente"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Adicionar
-            </button>
+            
+            <CreateClient />
+
             <button
               className="clients-aside__close-button"
               onClick={onClose}

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import ClientsAside from "./ClientsAside";
+import CreateClient from "./CreateClient";
 
 interface Client {
   id: string;
@@ -19,12 +20,6 @@ export default function ClientsPageWrapper() {
     setSelectedClient(client);
   };
 
-  const handleAddClient = () => {
-    setShowAddModal(true);
-    // For now, just show an alert - you can implement a modal later
-    alert("Funcionalidade de adicionar cliente será implementada em breve!");
-  };
-
   const toggleAside = () => {
     setIsAsideOpen(!isAsideOpen);
   };
@@ -34,10 +29,10 @@ export default function ClientsPageWrapper() {
       {isAsideOpen && (
         <ClientsAside
           onClientSelect={handleClientSelect}
-          onAddClient={handleAddClient}
           onClose={toggleAside}
         />
       )}
+
       <main
         className={`clients-main ${
           !isAsideOpen ? "clients-main--full-width" : ""
