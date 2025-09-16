@@ -1,3 +1,5 @@
+import { getUserID } from "@/lib/actions";
+
 const url = "http://localhost:3001";
 
 export async function getUser(email: string) {
@@ -66,9 +68,13 @@ export async function authUser(email: string, password: string) {
 
 // Clients
 
-export async function getClients(user: string) {
+export async function getClients() {
+  
+  // Get the User ID from the session
+  const userId = await getUserID();
+
   try {
-    const response = await fetch(`${url}/clients?user=${user}`);
+    const response = await fetch(`${url}/clients?user=${userId}`);
     if (!response.ok) {
       return [];
     }

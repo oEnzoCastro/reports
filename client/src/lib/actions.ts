@@ -63,3 +63,9 @@ export async function logout() {
   await deleteSession();
   redirect("/login");
 }
+
+export async function getUserID() {
+  const session = await decrypt((await cookies()).get("session")?.value);
+  const userId = session?.userId;
+  return userId;
+}

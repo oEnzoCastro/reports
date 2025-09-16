@@ -40,7 +40,7 @@ export default function ClientsAside({
 
   useEffect(() => {
     async function fetchClients() {
-      const clients = await getClients("enzocastru@gmail.com");
+      const clients = await getClients();
       setClients(clients);
     }
 
