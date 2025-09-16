@@ -170,7 +170,7 @@ app.get("/clients", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("clients")
-      .select("id, name, profession, gender")
+      .select("id, name, profession, gender, email, phonenumber, birthdate, maritalstatus, address, addressnumber, addresscomplement, partnername, partneremail, partnerphonenumber, partnergender, partnerprofession, partnerbirthdate")
       .eq("useremail", user);
 
     if (error) {

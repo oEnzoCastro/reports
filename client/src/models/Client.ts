@@ -13,20 +13,19 @@ type Client = {
   name: string;
   email: string;
   profession: string;
-  phoneNumber: string;
+  phonenumber: string;
   gender: string;
-  birthDate: Date;
-  maritalStatus: string;
+  birthdate: Date;
+  maritalstatus: string;
   address?: string;
-  addressNumber?: string;
-  addressComplement?: string;
+  addressnumber?: string;
+  addresscomplement?: string;
   partnerName?: string;
   partnerPhoneNumber?: string;
   partnerEmail?: string;
   partnerGender?: string;
   partnerProfession?: string;
   partnerBirthDate?: Date;
-  dependents?: Dependent[];
 };
 
 export type { Client, Dependent };

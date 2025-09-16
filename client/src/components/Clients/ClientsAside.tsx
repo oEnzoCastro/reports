@@ -4,13 +4,7 @@ import React, { useEffect, useState } from "react";
 import ClientCard from "./ClientCard";
 import { getClients } from "@/services/db";
 import CreateClient from "./CreateClient";
-
-interface Client {
-  id: string;
-  name: string;
-  gender: string;
-  profession: string;
-}
+import { Client } from "../../models/Client";
 
 interface ClientsAsideProps {
   onClientSelect?: (client: Client) => void;
@@ -23,7 +17,7 @@ export default function ClientsAside({
   onClose,
   isOpen = true,
 }: ClientsAsideProps) {
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,7 +103,7 @@ export default function ClientsAside({
           {filteredClients.map((client) => (
             <ClientCard
               key={client.id}
-              id={client.id}
+              id={client.id.toString()}
               name={client.name}
               gender={client.gender}
               profession={client.profession}
