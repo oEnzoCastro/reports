@@ -26,6 +26,7 @@ export default function ClientsAside({
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const filteredClients = clients.filter(
     (client) =>
@@ -40,8 +41,15 @@ export default function ClientsAside({
 
   useEffect(() => {
     async function fetchClients() {
-      const clients = await getClients();
-      setClients(clients);
+      try {
+        setIsLoading(true);
+        const clients = await getClients();
+        setClients(clients);
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     fetchClients();
@@ -53,7 +61,6 @@ export default function ClientsAside({
         <div className="clients-aside__header-top">
           <h2 className="clients-aside__title">Clientes</h2>
           <div className="clients-aside__header-buttons">
-            
             <CreateClient />
 
             <button
@@ -88,8 +95,14 @@ export default function ClientsAside({
 
       <div className="clients-aside__content">
         <div className="clients-aside__count">
-          {filteredClients.length}{" "}
-          {filteredClients.length === 1 ? "cliente" : "clientes"}
+          {isLoading ? (
+            "Carregando..."
+          ) : (
+            <>
+              {filteredClients.length}{" "}
+              {filteredClients.length === 1 ? "cliente" : "clientes"}
+            </>
+          )}
         </div>
 
         <div className="clients-aside__list">

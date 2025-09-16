@@ -1,3 +1,4 @@
+import { Client } from "@/models/Client";
 import React from "react";
 
 function Dashboard({ userClients }: { userClients: Client[] }) {

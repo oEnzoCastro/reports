@@ -6,7 +6,7 @@ import TextEditorMenuBar from "./TextEditorMenuBar";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
 import { useEffect } from "react";
-import { sendArticle } from "@/services/db";
+// import { sendArticle } from "@/services/db";
 
 export default function TextEditor({ article }: any) {
 
@@ -60,7 +60,7 @@ export default function TextEditor({ article }: any) {
       <TextEditorMenuBar editor={editor} />
       <EditorContent editor={editor} />
       <button
-        onClick={() => sendArticle(article.id, editor?.getHTML() || "")}
+        // onClick={() => sendArticle(article.id, editor?.getHTML() || "")}
         className="bg-(--primary) text-white px-2 py-1 rounded-md cursor-pointer"
       >
         Send

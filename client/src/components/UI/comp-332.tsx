@@ -4,7 +4,7 @@ import { useState } from "react"
 import { ArrowRightIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/UI/button"
 import {
   Dialog,
   DialogClose,
@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/UI/dialog"
 
 export default function Component() {
   const [step, setStep] = useState(1)
