@@ -4,17 +4,6 @@ import { useState, useEffect } from "react";
 import { ArrowRightIcon, ArrowLeftIcon, PlusIcon, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/UI/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/UI/dialog";
 import { postClient, postDependent } from "@/services/db";
 
 // Types for form data
@@ -78,14 +67,19 @@ const initialFormData: ClientFormData = {
 };
 
 interface CreateClientProps {
+  isOpen: boolean;
+  onClose: () => void;
   onClientCreated?: () => void;
 }
 
-export default function CreateClient({ onClientCreated }: CreateClientProps) {
+export default function CreateClient({
+  isOpen,
+  onClose,
+  onClientCreated,
+}: CreateClientProps) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<ClientFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [errorPopup, setErrorPopup] = useState<string | null>(null);
 
   // Auto-dismiss error popup after 5 seconds
@@ -288,7 +282,7 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
           setFormData(initialFormData);
           setStep(1);
           setErrors({});
-          setIsDialogOpen(false);
+          onClose();
           return;
         }
 
@@ -315,7 +309,7 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
         setFormData(initialFormData);
         setStep(1);
         setErrors({});
-        setIsDialogOpen(false);
+        onClose();
 
         // Call the callback to refresh the client list
         onClientCreated?.();
@@ -326,247 +320,232 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
         setFormData(initialFormData);
         setStep(1);
         setErrors({});
-        setIsDialogOpen(false);
+        onClose();
       }
     }
   };
 
   const renderStep1 = () => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Nome <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => updateFormData("name", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md ${
-              errors.name ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="Nome completo"
-          />
-          {errors.name && (
-            <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-          )}
-        </div>
+    <div className="form-grid">
+      <div className="form-group">
+        <label className="form-label">
+          Nome <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={formData.name}
+          onChange={(e) => updateFormData("name", e.target.value)}
+          className={`form-input ${errors.name ? "form-input--error" : ""}`}
+          placeholder="Nome completo"
+        />
+        {errors.name && <span className="form-error">{errors.name}</span>}
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Email <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => updateFormData("email", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="email@exemplo.com"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label className="form-label">
+          Email <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="email"
+          value={formData.email}
+          onChange={(e) => updateFormData("email", e.target.value)}
+          className={`form-input ${errors.email ? "form-input--error" : ""}`}
+          placeholder="email@exemplo.com"
+        />
+        {errors.email && <span className="form-error">{errors.email}</span>}
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Telefone <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="tel"
-            value={formData.phoneNumber}
-            onChange={(e) => updateFormData("phoneNumber", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md ${
-              errors.phoneNumber ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="(11) 99999-9999"
-          />
-          {errors.phoneNumber && (
-            <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label className="form-label">
+          Telefone <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="tel"
+          value={formData.phoneNumber}
+          onChange={(e) => updateFormData("phoneNumber", e.target.value)}
+          className={`form-input ${
+            errors.phoneNumber ? "form-input--error" : ""
+          }`}
+          placeholder="(11) 99999-9999"
+        />
+        {errors.phoneNumber && (
+          <span className="form-error">{errors.phoneNumber}</span>
+        )}
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Gênero <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.gender}
-            onChange={(e) => updateFormData("gender", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md ${
-              errors.gender ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Selecione</option>
-            <option value="masculino">Masculino</option>
-            <option value="feminino">Feminino</option>
-            <option value="outro">Outro</option>
-            <option value="prefiro-nao-informar">Prefiro não informar</option>
-          </select>
-          {errors.gender && (
-            <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label className="form-label">
+          Gênero <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={formData.gender}
+          onChange={(e) => updateFormData("gender", e.target.value)}
+          className={`form-input ${errors.gender ? "form-input--error" : ""}`}
+        >
+          <option value="">Selecione</option>
+          <option value="masculino">Masculino</option>
+          <option value="feminino">Feminino</option>
+          <option value="outro">Outro</option>
+          <option value="prefiro-nao-informar">Prefiro não informar</option>
+        </select>
+        {errors.gender && <span className="form-error">{errors.gender}</span>}
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Profissão <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.profession}
-            onChange={(e) => updateFormData("profession", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md ${
-              errors.profession ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="Profissão"
-          />
-          {errors.profession && (
-            <p className="text-red-500 text-xs mt-1">{errors.profession}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label className="form-label">
+          Profissão <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={formData.profession}
+          onChange={(e) => updateFormData("profession", e.target.value)}
+          className={`form-input ${
+            errors.profession ? "form-input--error" : ""
+          }`}
+          placeholder="Profissão"
+        />
+        {errors.profession && (
+          <span className="form-error">{errors.profession}</span>
+        )}
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Data de Nascimento <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            value={formData.birthdate}
-            onChange={(e) => updateFormData("birthdate", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md ${
-              errors.birthdate ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.birthdate && (
-            <p className="text-red-500 text-xs mt-1">{errors.birthdate}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label className="form-label">
+          Data de Nascimento <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="date"
+          value={formData.birthdate}
+          onChange={(e) => updateFormData("birthdate", e.target.value)}
+          className={`form-input ${
+            errors.birthdate ? "form-input--error" : ""
+          }`}
+        />
+        {errors.birthdate && (
+          <span className="form-error">{errors.birthdate}</span>
+        )}
+      </div>
 
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium mb-1">
-            Estado Civil <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.maritalStatus}
-            onChange={(e) => updateFormData("maritalStatus", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md ${
-              errors.maritalStatus ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Selecione</option>
-            <option value="solteiro">Solteiro(a)</option>
-            <option value="casado">Casado(a)</option>
-            <option value="divorciado">Divorciado(a)</option>
-            <option value="viuvo">Viúvo(a)</option>
-            <option value="uniao-estavel">União Estável</option>
-          </select>
-          {errors.maritalStatus && (
-            <p className="text-red-500 text-xs mt-1">{errors.maritalStatus}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label className="form-label">
+          Estado Civil <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={formData.maritalStatus}
+          onChange={(e) => updateFormData("maritalStatus", e.target.value)}
+          className={`form-input ${
+            errors.maritalStatus ? "form-input--error" : ""
+          }`}
+        >
+          <option value="">Selecione</option>
+          <option value="solteiro">Solteiro(a)</option>
+          <option value="casado">Casado(a)</option>
+          <option value="divorciado">Divorciado(a)</option>
+          <option value="viuvo">Viúvo(a)</option>
+          <option value="uniao-estavel">União Estável</option>
+        </select>
+        {errors.maritalStatus && (
+          <span className="form-error">{errors.maritalStatus}</span>
+        )}
       </div>
     </div>
   );
 
   const renderStep2 = () => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium mb-1">Endereço</label>
-          <input
-            type="text"
-            value={formData.address || ""}
-            onChange={(e) => updateFormData("address", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="Rua, Avenida, etc."
-          />
-        </div>
+    <div className="form-grid">
+      <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+        <label className="form-label">Endereço</label>
+        <input
+          type="text"
+          value={formData.address || ""}
+          onChange={(e) => updateFormData("address", e.target.value)}
+          className="form-input"
+          placeholder="Rua, Avenida, etc."
+        />
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Número</label>
-          <input
-            type="text"
-            value={formData.addressNumber || ""}
-            onChange={(e) => updateFormData("addressNumber", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="123"
-          />
-        </div>
+      <div className="form-group">
+        <label className="form-label">Número</label>
+        <input
+          type="text"
+          value={formData.addressNumber || ""}
+          onChange={(e) => updateFormData("addressNumber", e.target.value)}
+          className="form-input"
+          placeholder="123"
+        />
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Complemento</label>
-          <input
-            type="text"
-            value={formData.addressComplement || ""}
-            onChange={(e) =>
-              updateFormData("addressComplement", e.target.value)
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="Apto, Bloco, etc."
-          />
-        </div>
+      <div className="form-group">
+        <label className="form-label">Complemento</label>
+        <input
+          type="text"
+          value={formData.addressComplement || ""}
+          onChange={(e) => updateFormData("addressComplement", e.target.value)}
+          className="form-input"
+          placeholder="Apto, Bloco, etc."
+        />
       </div>
     </div>
   );
 
   const renderStep3 = () => (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-4">
-        <input
-          type="checkbox"
-          id="hasPartner"
-          checked={formData.hasPartner}
-          onChange={(e) => updateFormData("hasPartner", e.target.checked)}
-          className="rounded"
-        />
-        <label htmlFor="hasPartner" className="text-sm font-medium">
+    <div>
+      <div className="form-group" style={{ marginBottom: "24px" }}>
+        <label
+          className="form-label"
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <input
+            type="checkbox"
+            id="hasPartner"
+            checked={formData.hasPartner}
+            onChange={(e) => updateFormData("hasPartner", e.target.checked)}
+            style={{ margin: 0 }}
+          />
           Cliente possui cônjuge/parceiro
         </label>
       </div>
 
       {formData.hasPartner && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
+        <div className="form-grid">
+          <div className="form-group">
+            <label className="form-label">
               Nome do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.partnerName || ""}
               onChange={(e) => updateFormData("partnerName", e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.partnerName ? "border-red-500" : "border-gray-300"
+              className={`form-input ${
+                errors.partnerName ? "form-input--error" : ""
               }`}
               placeholder="Nome completo"
             />
             {errors.partnerName && (
-              <p className="text-red-500 text-xs mt-1">{errors.partnerName}</p>
+              <span className="form-error">{errors.partnerName}</span>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Email do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
               value={formData.partnerEmail || ""}
               onChange={(e) => updateFormData("partnerEmail", e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.partnerEmail ? "border-red-500" : "border-gray-300"
+              className={`form-input ${
+                errors.partnerEmail ? "form-input--error" : ""
               }`}
               placeholder="email@exemplo.com"
             />
             {errors.partnerEmail && (
-              <p className="text-red-500 text-xs mt-1">{errors.partnerEmail}</p>
+              <span className="form-error">{errors.partnerEmail}</span>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Telefone do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
@@ -575,27 +554,25 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
               onChange={(e) =>
                 updateFormData("partnerPhoneNumber", e.target.value)
               }
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.partnerPhoneNumber ? "border-red-500" : "border-gray-300"
+              className={`form-input ${
+                errors.partnerPhoneNumber ? "form-input--error" : ""
               }`}
               placeholder="(11) 99999-9999"
             />
             {errors.partnerPhoneNumber && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.partnerPhoneNumber}
-              </p>
+              <span className="form-error">{errors.partnerPhoneNumber}</span>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Gênero do Parceiro <span className="text-red-500">*</span>
             </label>
             <select
               value={formData.partnerGender || ""}
               onChange={(e) => updateFormData("partnerGender", e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.partnerGender ? "border-red-500" : "border-gray-300"
+              className={`form-input ${
+                errors.partnerGender ? "form-input--error" : ""
               }`}
             >
               <option value="">Selecione</option>
@@ -605,14 +582,12 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
               <option value="prefiro-nao-informar">Prefiro não informar</option>
             </select>
             {errors.partnerGender && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.partnerGender}
-              </p>
+              <span className="form-error">{errors.partnerGender}</span>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Profissão do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
@@ -621,20 +596,18 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
               onChange={(e) =>
                 updateFormData("partnerProfession", e.target.value)
               }
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.partnerProfession ? "border-red-500" : "border-gray-300"
+              className={`form-input ${
+                errors.partnerProfession ? "form-input--error" : ""
               }`}
               placeholder="Profissão"
             />
             {errors.partnerProfession && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.partnerProfession}
-              </p>
+              <span className="form-error">{errors.partnerProfession}</span>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Data de Nascimento do Parceiro{" "}
               <span className="text-red-500">*</span>
             </label>
@@ -644,14 +617,12 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
               onChange={(e) =>
                 updateFormData("partnerBirthdate", e.target.value)
               }
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.partnerBirthdate ? "border-red-500" : "border-gray-300"
+              className={`form-input ${
+                errors.partnerBirthdate ? "form-input--error" : ""
               }`}
             />
             {errors.partnerBirthdate && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.partnerBirthdate}
-              </p>
+              <span className="form-error">{errors.partnerBirthdate}</span>
             )}
           </div>
         </div>
@@ -660,45 +631,75 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
   );
 
   const renderStep4 = () => (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">Dependentes</h3>
-        <Button
+    <div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "24px",
+        }}
+      >
+        <h3 style={{ fontSize: "18px", fontWeight: "600", margin: 0 }}>
+          Dependentes
+        </h3>
+        <button
           type="button"
           onClick={addDependent}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
+          className="btn btn--secondary"
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
           <PlusIcon size={16} />
           Adicionar Dependente
-        </Button>
+        </button>
       </div>
 
       {formData.dependents.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            textAlign: "center",
+            padding: "32px 0",
+          }}
+        >
           Nenhum dependente adicionado. Clique no botão acima para adicionar.
         </p>
       ) : (
-        <div className="space-y-6">
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           {formData.dependents.map((dependent, index) => (
-            <div key={dependent.id} className="border rounded-lg p-4 relative">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium">Dependente {index + 1}</h4>
-                <Button
+            <div
+              key={dependent.id}
+              style={{
+                border: "1px solid var(--border-color)",
+                borderRadius: "var(--border-radius-sm)",
+                padding: "20px",
+                position: "relative",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "20px",
+                }}
+              >
+                <h4 style={{ fontWeight: "600", margin: 0 }}>
+                  Dependente {index + 1}
+                </h4>
+                <button
                   type="button"
                   onClick={() => removeDependent(dependent.id)}
-                  variant="outline"
-                  size="sm"
-                  className="text-red-600 hover:text-red-700"
+                  className="btn btn--secondary"
+                  style={{ color: "#dc3545", borderColor: "#dc3545" }}
                 >
                   <X size={16} />
-                </Button>
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">
                     Nome <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -707,46 +708,44 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
                     onChange={(e) =>
                       updateDependent(dependent.id, "name", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-md ${
+                    className={`form-input ${
                       errors[`dependent_${index}_name`]
-                        ? "border-red-500"
-                        : "border-gray-300"
+                        ? "form-input--error"
+                        : ""
                     }`}
                     placeholder="Nome completo"
                   />
                   {errors[`dependent_${index}_name`] && (
-                    <p className="text-red-500 text-xs mt-1">
+                    <span className="form-error">
                       {errors[`dependent_${index}_name`]}
-                    </p>
+                    </span>
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Email
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Email</label>
                   <input
                     type="email"
                     value={dependent.email || ""}
                     onChange={(e) =>
                       updateDependent(dependent.id, "email", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-md ${
+                    className={`form-input ${
                       errors[`dependent_${index}_email`]
-                        ? "border-red-500"
-                        : "border-gray-300"
+                        ? "form-input--error"
+                        : ""
                     }`}
                     placeholder="email@exemplo.com"
                   />
                   {errors[`dependent_${index}_email`] && (
-                    <p className="text-red-500 text-xs mt-1">
+                    <span className="form-error">
                       {errors[`dependent_${index}_email`]}
-                    </p>
+                    </span>
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
+                <div className="form-group">
+                  <label className="form-label">
                     Gênero <span className="text-red-500">*</span>
                   </label>
                   <select
@@ -754,10 +753,10 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
                     onChange={(e) =>
                       updateDependent(dependent.id, "gender", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-md ${
+                    className={`form-input ${
                       errors[`dependent_${index}_gender`]
-                        ? "border-red-500"
-                        : "border-gray-300"
+                        ? "form-input--error"
+                        : ""
                     }`}
                   >
                     <option value="">Selecione</option>
@@ -769,30 +768,26 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
                     </option>
                   </select>
                   {errors[`dependent_${index}_gender`] && (
-                    <p className="text-red-500 text-xs mt-1">
+                    <span className="form-error">
                       {errors[`dependent_${index}_gender`]}
-                    </p>
+                    </span>
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Data de Nascimento
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Data de Nascimento</label>
                   <input
                     type="date"
                     value={dependent.birthdate || ""}
                     onChange={(e) =>
                       updateDependent(dependent.id, "birthdate", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="form-input"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Telefone
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Telefone</label>
                   <input
                     type="tel"
                     value={dependent.phoneNumber || ""}
@@ -803,13 +798,13 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
                         e.target.value
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="form-input"
                     placeholder="(11) 99999-9999"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
+                <div className="form-group">
+                  <label className="form-label">
                     Tipo <span className="text-red-500">*</span>
                   </label>
                   <select
@@ -817,10 +812,10 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
                     onChange={(e) =>
                       updateDependent(dependent.id, "type", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-md ${
+                    className={`form-input ${
                       errors[`dependent_${index}_type`]
-                        ? "border-red-500"
-                        : "border-gray-300"
+                        ? "form-input--error"
+                        : ""
                     }`}
                   >
                     <option value="">Selecione</option>
@@ -834,9 +829,9 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
                     <option value="outro">Outro</option>
                   </select>
                   {errors[`dependent_${index}_type`] && (
-                    <p className="text-red-500 text-xs mt-1">
+                    <span className="form-error">
                       {errors[`dependent_${index}_type`]}
-                    </p>
+                    </span>
                   )}
                 </div>
               </div>
@@ -846,6 +841,13 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
       )}
     </div>
   );
+
+  const handleClose = () => {
+    setFormData(initialFormData);
+    setStep(1);
+    setErrors({});
+    onClose();
+  };
 
   const getCurrentStepContent = () => {
     switch (step) {
@@ -862,91 +864,84 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog
-      open={isDialogOpen}
-      onOpenChange={(open) => {
-        setIsDialogOpen(open);
-        if (open) {
-          setStep(1);
-          setFormData(initialFormData);
-          setErrors({});
-        }
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button variant="outline" className="clients-aside__add-button">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Adicionar
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="gap-0 p-0 bg-white [&>button:last-child]:text-white max-w-2xl max-h-[80vh] overflow-y-auto">
-        <div className="p-6">
-          <DialogHeader>
-            <DialogTitle>{stepContent[step - 1].title}</DialogTitle>
-            <DialogDescription>
-              {stepContent[step - 1].description}
-            </DialogDescription>
-          </DialogHeader>
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">{stepContent[step - 1].title}</h2>
+          <button className="modal-close-button" onClick={handleClose}>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div className="modal-form">
+          <p className="form-description">
+            {stepContent[step - 1].description}
+          </p>
 
           {/* Form Content */}
-          <div className="mt-6">{getCurrentStepContent()}</div>
+          <div>{getCurrentStepContent()}</div>
 
           {/* Progress Indicators and Navigation */}
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center mt-6">
-            <div className="flex justify-center space-x-1.5 max-sm:order-1">
+          <div className="modal-navigation">
+            <div className="progress-indicators">
               {[...Array(totalSteps)].map((_, index) => (
                 <div
                   key={index}
                   className={cn(
-                    "size-1.5 rounded-full",
-                    index + 1 === step ? "bg-primary" : "bg-gray-300"
+                    "progress-dot",
+                    index + 1 === step ? "progress-dot--active" : ""
                   )}
                 />
               ))}
             </div>
 
-            <DialogFooter className="gap-2">
+            <div className="modal-actions">
               {step > 1 && (
-                <Button
+                <button
                   type="button"
-                  variant="outline"
+                  className="btn btn--secondary"
                   onClick={handleBack}
-                  className="flex items-center gap-2"
                 >
                   <ArrowLeftIcon size={16} />
                   Voltar
-                </Button>
+                </button>
               )}
 
               {step < totalSteps ? (
-                <Button className="group" type="button" onClick={handleNext}>
+                <button
+                  className="btn btn--primary"
+                  type="button"
+                  onClick={handleNext}
+                >
                   Próximo
-                  <ArrowRightIcon
-                    className="-me-1 opacity-60 transition-transform group-hover:translate-x-0.5"
-                    size={16}
-                    aria-hidden="true"
-                  />
-                </Button>
+                  <ArrowRightIcon size={16} />
+                </button>
               ) : (
-                <Button type="button" onClick={handleSubmit}>
+                <button
+                  className="btn btn--primary"
+                  type="button"
+                  onClick={handleSubmit}
+                >
                   Criar Cliente
-                </Button>
+                </button>
               )}
-            </DialogFooter>
+            </div>
           </div>
         </div>
-      </DialogContent>
+      </div>
 
       {/* Error Popup */}
       {errorPopup && (
@@ -977,6 +972,6 @@ export default function CreateClient({ onClientCreated }: CreateClientProps) {
           </div>
         </div>
       )}
-    </Dialog>
+    </div>
   );
 }
