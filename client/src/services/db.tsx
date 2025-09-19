@@ -69,12 +69,11 @@ export async function authUser(email: string, password: string) {
 // Clients
 
 export async function getClients() {
-  
   // Get the User ID from the session
-  const userId = await getUserID();
+  const user = await getUserID();
 
   try {
-    const response = await fetch(`${url}/clients?user=${userId}`);
+    const response = await fetch(`${url}/clients?user=${user}`);
     if (!response.ok) {
       return [];
     }
@@ -88,13 +87,16 @@ export async function getClients() {
 }
 
 export async function postClient(client: any) {
+  // Get the User ID from the session
+  const user = await getUserID();
+
   try {
     const response = await fetch(`${url}/client`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(client),
+      body: JSON.stringify({ ...client, useremail: user }),
     });
     if (!response.ok) {
       return null;
@@ -103,6 +105,44 @@ export async function postClient(client: any) {
     return data;
   } catch (error) {
     console.error("Error in postClient:", error);
+    return null;
+  }
+}
+
+// Dependents
+
+export async function getDependents(clientid: string) {
+  try {
+    const response = await fetch(`${url}/dependents?clientid=${clientid}`);
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in getDependents:", error);
+    return [];
+  }
+}
+
+export async function postDependent(dependent: any) {
+
+  try {
+    const response = await fetch(`${url}/dependent`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dependent),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in postDependent:", error);
     return null;
   }
 }

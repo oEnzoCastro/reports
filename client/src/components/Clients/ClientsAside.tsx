@@ -22,6 +22,18 @@ export default function ClientsAside({
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const refreshClients = async () => {
+    try {
+      setIsLoading(true);
+      const clients = await getClients();
+      setClients(clients);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const filteredClients = clients.filter(
     (client) =>
       client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,19 +46,7 @@ export default function ClientsAside({
   };
 
   useEffect(() => {
-    async function fetchClients() {
-      try {
-        setIsLoading(true);
-        const clients = await getClients();
-        setClients(clients);
-      } catch (error) {
-        console.error("Error fetching clients:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchClients();
+    refreshClients();
   }, []);
 
   return (
@@ -55,7 +55,7 @@ export default function ClientsAside({
         <div className="clients-aside__header-top">
           <h2 className="clients-aside__title">Clientes</h2>
           <div className="clients-aside__header-buttons">
-            <CreateClient />
+            <CreateClient onClientCreated={refreshClients} />
 
             <button
               className="clients-aside__close-button"

@@ -18,6 +18,7 @@ export default function ClientsPageWrapper() {
   const toggleAside = () => {
     setIsAsideOpen(!isAsideOpen);
   };
+  
 
   return (
     <div className="clients-page w-full">

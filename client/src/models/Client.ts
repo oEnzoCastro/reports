@@ -4,8 +4,9 @@ type Dependent = {
   email?: string;
   gender: string;
   birthdate?: string;
-  phoneNumber?: string;
+  phonenumber?: string; // Note: using lowercase to match server response
   type: string;
+  clientid: string; // Add clientid field
 };
 
 type Client = {

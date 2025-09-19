@@ -1,11 +1,51 @@
-import React from "react";
-import { Client } from "../../models/Client";
+import React, { useState, useEffect } from "react";
+import { Client, Dependent } from "../../models/Client";
+import { getDependents } from "../../services/db";
+import AddDependent from "./AddDependent";
 
 interface ClientDetailsProps {
   client: Client;
 }
 
 export default function ClientDetails({ client }: ClientDetailsProps) {
+  const [dependents, setDependents] = useState<Dependent[]>([]);
+  const [loadingDependents, setLoadingDependents] = useState(false);
+  const [showAddDependentModal, setShowAddDependentModal] = useState(false);
+
+  // Fetch dependents when client changes
+  useEffect(() => {
+    const fetchDependents = async () => {
+      if (client?.id) {
+        setLoadingDependents(true);
+        try {
+          const clientDependents = await getDependents(client.id.toString());
+          setDependents(clientDependents || []);
+        } catch (error) {
+          console.error("Error fetching dependents:", error);
+          setDependents([]);
+        } finally {
+          setLoadingDependents(false);
+        }
+      }
+    };
+
+    fetchDependents();
+  }, [client?.id]);
+
+  const handleDependentAdded = async () => {
+    // Refresh the dependents list after adding a new one
+    if (client?.id) {
+      setLoadingDependents(true);
+      try {
+        const clientDependents = await getDependents(client.id.toString());
+        setDependents(clientDependents || []);
+      } catch (error) {
+        console.error("Error fetching updated dependents:", error);
+      } finally {
+        setLoadingDependents(false);
+      }
+    }
+  };
   // Debug: Log the client data to see the birth date format
   console.log("Client data:", client);
   console.log(
@@ -123,6 +163,45 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
       )}`;
     }
     return phone;
+  };
+
+  const getDependentAge = (birthdate: string | undefined) => {
+    if (!birthdate) return "Não informado";
+
+    // Handle different date formats
+    let birth: Date;
+    if (typeof birthdate === "string") {
+      // Check if it's an ISO date format (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss...)
+      const isoDatePattern = /^\d{4}-\d{2}-\d{2}/;
+      if (isoDatePattern.test(birthdate)) {
+        // Extract just the date part (YYYY-MM-DD) and create a local date
+        const datePart = birthdate.split("T")[0];
+        const [year, month, day] = datePart.split("-").map(Number);
+        birth = new Date(year, month - 1, day); // month is 0-based
+      } else {
+        birth = new Date(birthdate);
+      }
+    } else {
+      birth = new Date(birthdate);
+    }
+
+    // Check if date is valid
+    if (isNaN(birth.getTime())) {
+      return "Data inválida";
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
   };
 
   return (
@@ -284,6 +363,122 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
         )}
 
         <div className="client-details__section">
+          <div className="client-details__section-header">
+            <h3 className="">Dependentes</h3>
+            <button
+              className="client-details__add-dependent-button"
+              onClick={() => setShowAddDependentModal(true)}
+              title="Adicionar dependente"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M12 4v16m8-8H4" />
+              </svg>
+              Adicionar Dependente
+            </button>
+          </div>
+          <div className="client-details__section-content">
+            {loadingDependents ? (
+              <div className="client-details__loading">
+                <span>Carregando dependentes...</span>
+              </div>
+            ) : dependents.length > 0 ? (
+              <div className="client-details__dependents">
+                {dependents.map((dependent) => (
+                  <div
+                    key={dependent.id}
+                    className="client-details__dependent-card"
+                  >
+                    <div className="client-details__dependent-header">
+                      <div className="client-details__dependent-avatar">
+                        {dependent.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="client-details__dependent-info">
+                        <h4 className="client-details__dependent-name">
+                          {dependent.name}
+                        </h4>
+                        <div className="client-details__dependent-meta">
+                          <span className="client-details__dependent-type">
+                            {dependent.type}
+                          </span>
+                          {dependent.gender && (
+                            <>
+                              <span className="client-details__separator">
+                                •
+                              </span>
+                              <span className="client-details__dependent-gender">
+                                {dependent.gender}
+                              </span>
+                            </>
+                          )}
+                          {dependent.birthdate && (
+                            <>
+                              <span className="client-details__separator">
+                                •
+                              </span>
+                              <span className="client-details__dependent-age">
+                                {typeof getDependentAge(dependent.birthdate) ===
+                                "string"
+                                  ? getDependentAge(dependent.birthdate)
+                                  : `${getDependentAge(
+                                      dependent.birthdate
+                                    )} anos`}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="client-details__dependent-details">
+                      {dependent.email && (
+                        <div className="client-details__dependent-detail">
+                          <span className="client-details__dependent-detail-label">
+                            Email:
+                          </span>
+                          <span className="client-details__dependent-detail-value">
+                            {dependent.email}
+                          </span>
+                        </div>
+                      )}
+                      {dependent.phonenumber && (
+                        <div className="client-details__dependent-detail">
+                          <span className="client-details__dependent-detail-label">
+                            Telefone:
+                          </span>
+                          <span className="client-details__dependent-detail-value">
+                            {formatPhoneNumber(dependent.phonenumber)}
+                          </span>
+                        </div>
+                      )}
+                      {dependent.birthdate && (
+                        <div className="client-details__dependent-detail">
+                          <span className="client-details__dependent-detail-label">
+                            Data de Nascimento:
+                          </span>
+                          <span className="client-details__dependent-detail-value">
+                            {formatDate(dependent.birthdate)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="client-details__no-dependents">
+                <p>Este cliente não possui dependentes cadastrados.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="client-details__section">
           <h3 className="client-details__section-title">Ações</h3>
           <div className="client-details__section-content">
             <div className="client-details__actions">
@@ -335,6 +530,14 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
           </div>
         </div>
       </div>
+
+      {/* Add Dependent Modal */}
+      <AddDependent
+        isOpen={showAddDependentModal}
+        onClose={() => setShowAddDependentModal(false)}
+        clientId={client.id}
+        onDependentAdded={handleDependentAdded}
+      />
     </div>
   );
 }

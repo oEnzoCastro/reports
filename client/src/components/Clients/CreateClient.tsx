@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowRightIcon, ArrowLeftIcon, PlusIcon, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/UI/dialog";
-import { postClient } from "@/services/db";
+import { postClient, postDependent } from "@/services/db";
 
 // Types for form data
 interface Dependent {
@@ -77,10 +77,26 @@ const initialFormData: ClientFormData = {
   dependents: [],
 };
 
-export default function CreateClient() {
+interface CreateClientProps {
+  onClientCreated?: () => void;
+}
+
+export default function CreateClient({ onClientCreated }: CreateClientProps) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<ClientFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [errorPopup, setErrorPopup] = useState<string | null>(null);
+
+  // Auto-dismiss error popup after 5 seconds
+  useEffect(() => {
+    if (errorPopup) {
+      const timer = setTimeout(() => {
+        setErrorPopup(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorPopup]);
 
   const stepContent = [
     {
@@ -259,24 +275,58 @@ export default function CreateClient() {
             formData.hasPartner && formData.partnerBirthdate
               ? new Date(formData.partnerBirthdate)
               : undefined,
-          //   dependents:
-          //     formData.dependents.length > 0 ? formData.dependents : undefined,
-          useremail: "enzocastru@gmail.com",
         };
 
         // Here you would typically send the data to your API
         console.log(clientData);
-        await postClient(clientData);
+        const clientResult = await postClient(clientData);
+
+        // Check if client creation was successful
+        if (!clientResult || !clientResult.clientId) {
+          setErrorPopup("Failed to create client - no client ID returned");
+          // Reset form and close dialog even on error
+          setFormData(initialFormData);
+          setStep(1);
+          setErrors({});
+          setIsDialogOpen(false);
+          return;
+        }
+
+        // Process dependents if any exist
+        if (formData.dependents.length > 0) {
+          for (const dependent of formData.dependents) {
+            const dependentData = {
+              name: dependent.name,
+              email: dependent.email || undefined,
+              phonenumber: dependent.phoneNumber || undefined,
+              gender: dependent.gender || undefined,
+              birthdate: dependent.birthdate
+                ? new Date(dependent.birthdate)
+                : undefined,
+              type: dependent.type || undefined,
+              clientid: clientResult.clientId,
+            };
+
+            await postDependent(dependentData);
+          }
+        }
 
         // Reset form and close dialog
         setFormData(initialFormData);
         setStep(1);
         setErrors({});
+        setIsDialogOpen(false);
 
-        // You might want to show a success message or refresh the client list
+        // Call the callback to refresh the client list
+        onClientCreated?.();
       } catch (error) {
         console.error("Error creating client:", error);
-        alert("Erro ao criar cliente. Tente novamente.");
+        setErrorPopup("Erro ao criar cliente. Tente novamente.");
+        // Reset form and close dialog even on error
+        setFormData(initialFormData);
+        setStep(1);
+        setErrors({});
+        setIsDialogOpen(false);
       }
     }
   };
@@ -285,7 +335,9 @@ export default function CreateClient() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Nome *</label>
+          <label className="block text-sm font-medium mb-1">
+            Nome <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             value={formData.name}
@@ -301,7 +353,9 @@ export default function CreateClient() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Email *</label>
+          <label className="block text-sm font-medium mb-1">
+            Email <span className="text-red-500">*</span>
+          </label>
           <input
             type="email"
             value={formData.email}
@@ -317,7 +371,9 @@ export default function CreateClient() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Telefone *</label>
+          <label className="block text-sm font-medium mb-1">
+            Telefone <span className="text-red-500">*</span>
+          </label>
           <input
             type="tel"
             value={formData.phoneNumber}
@@ -333,7 +389,9 @@ export default function CreateClient() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Gênero *</label>
+          <label className="block text-sm font-medium mb-1">
+            Gênero <span className="text-red-500">*</span>
+          </label>
           <select
             value={formData.gender}
             onChange={(e) => updateFormData("gender", e.target.value)}
@@ -353,7 +411,9 @@ export default function CreateClient() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Profissão *</label>
+          <label className="block text-sm font-medium mb-1">
+            Profissão <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             value={formData.profession}
@@ -370,7 +430,7 @@ export default function CreateClient() {
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Data de Nascimento *
+            Data de Nascimento <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -387,7 +447,7 @@ export default function CreateClient() {
 
         <div className="md:col-span-2">
           <label className="block text-sm font-medium mb-1">
-            Estado Civil *
+            Estado Civil <span className="text-red-500">*</span>
           </label>
           <select
             value={formData.maritalStatus}
@@ -471,7 +531,7 @@ export default function CreateClient() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">
-              Nome do Parceiro *
+              Nome do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -489,7 +549,7 @@ export default function CreateClient() {
 
           <div>
             <label className="block text-sm font-medium mb-1">
-              Email do Parceiro *
+              Email do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
@@ -507,7 +567,7 @@ export default function CreateClient() {
 
           <div>
             <label className="block text-sm font-medium mb-1">
-              Telefone do Parceiro *
+              Telefone do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -529,7 +589,7 @@ export default function CreateClient() {
 
           <div>
             <label className="block text-sm font-medium mb-1">
-              Gênero do Parceiro *
+              Gênero do Parceiro <span className="text-red-500">*</span>
             </label>
             <select
               value={formData.partnerGender || ""}
@@ -553,7 +613,7 @@ export default function CreateClient() {
 
           <div>
             <label className="block text-sm font-medium mb-1">
-              Profissão do Parceiro *
+              Profissão do Parceiro <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -575,7 +635,8 @@ export default function CreateClient() {
 
           <div>
             <label className="block text-sm font-medium mb-1">
-              Data de Nascimento do Parceiro *
+              Data de Nascimento do Parceiro{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -638,7 +699,7 @@ export default function CreateClient() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Nome *
+                    Nome <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -686,7 +747,7 @@ export default function CreateClient() {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Gênero *
+                    Gênero <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={dependent.gender}
@@ -749,7 +810,7 @@ export default function CreateClient() {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Tipo *
+                    Tipo <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={dependent.type}
@@ -803,7 +864,9 @@ export default function CreateClient() {
 
   return (
     <Dialog
+      open={isDialogOpen}
       onOpenChange={(open) => {
+        setIsDialogOpen(open);
         if (open) {
           setStep(1);
           setFormData(initialFormData);
@@ -884,6 +947,36 @@ export default function CreateClient() {
           </div>
         </div>
       </DialogContent>
+
+      {/* Error Popup */}
+      {errorPopup && (
+        <div className="fixed bottom-4 right-4 z-50 max-w-sm">
+          <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between animate-in slide-in-from-right-4 fade-in">
+            <div className="flex items-center gap-2">
+              <svg
+                className="h-5 w-5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span className="text-sm font-medium">{errorPopup}</span>
+            </div>
+            <button
+              onClick={() => setErrorPopup(null)}
+              className="ml-2 hover:bg-red-600 rounded p-1 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 }
