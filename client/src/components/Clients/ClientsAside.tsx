@@ -10,12 +10,16 @@ interface ClientsAsideProps {
   onClientSelect?: (client: Client) => void;
   onClose?: () => void;
   isOpen?: boolean;
+  refreshTrigger?: number;
+  selectedClientId?: number | null;
 }
 
 export default function ClientsAside({
   onClientSelect,
   onClose,
   isOpen = true,
+  refreshTrigger,
+  selectedClientId: externalSelectedClientId,
 }: ClientsAsideProps) {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +32,20 @@ export default function ClientsAside({
       setIsLoading(true);
       const clients = await getClients();
       setClients(clients);
+
+      // If there's an externally selected client, notify parent with updated data
+      if (externalSelectedClientId && onClientSelect) {
+        const updatedSelectedClient = clients.find(
+          (client: Client) => client.id === externalSelectedClientId
+        );
+        if (updatedSelectedClient) {
+          console.log(
+            "Updating selected client with fresh data:",
+            updatedSelectedClient.name
+          );
+          onClientSelect(updatedSelectedClient);
+        }
+      }
     } catch (error) {
       console.error("Error fetching clients:", error);
     } finally {
@@ -49,6 +67,18 @@ export default function ClientsAside({
   useEffect(() => {
     refreshClients();
   }, []);
+
+  // Refresh clients when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0) {
+      refreshClients();
+    }
+  }, [refreshTrigger]);
+
+  // Update internal selectedClientId when external prop changes
+  useEffect(() => {
+    setSelectedClientId(externalSelectedClientId ?? null);
+  }, [externalSelectedClientId]);
 
   return (
     <aside className="clients-aside">

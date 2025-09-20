@@ -1,16 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { Client, Dependent } from "../../models/Client";
-import { getDependents } from "../../services/db";
+import {
+  getDependents,
+  deleteClient,
+  deleteDependent,
+} from "../../services/db";
 import AddDependent from "./AddDependent";
+import EditClient from "./EditClient";
+import EditDependent from "./EditDependent";
+import ConfirmDeleteModal from "../UI/ConfirmDeleteModal";
 
 interface ClientDetailsProps {
   client: Client;
+  onClientUpdated?: () => void;
+  onClientDeleted?: () => void;
 }
 
-export default function ClientDetails({ client }: ClientDetailsProps) {
+export default function ClientDetails({
+  client,
+  onClientUpdated,
+  onClientDeleted,
+}: ClientDetailsProps) {
   const [dependents, setDependents] = useState<Dependent[]>([]);
   const [loadingDependents, setLoadingDependents] = useState(false);
   const [showAddDependentModal, setShowAddDependentModal] = useState(false);
+  const [showEditClientModal, setShowEditClientModal] = useState(false);
+  const [showEditDependentModal, setShowEditDependentModal] = useState(false);
+  const [selectedDependent, setSelectedDependent] = useState<Dependent | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteClientModal, setShowDeleteClientModal] = useState(false);
+  const [showDeleteDependentModal, setShowDeleteDependentModal] =
+    useState(false);
+  const [dependentToDelete, setDependentToDelete] = useState<Dependent | null>(
+    null
+  );
 
   // Fetch dependents when client changes
   useEffect(() => {
@@ -45,6 +70,70 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
         setLoadingDependents(false);
       }
     }
+  };
+
+  const handleClientUpdated = () => {
+    if (onClientUpdated) {
+      onClientUpdated();
+    }
+  };
+
+  const handleDeleteClient = async () => {
+    setIsDeleting(true);
+    try {
+      const result = await deleteClient(client.id);
+      if (result && result.success) {
+        if (onClientDeleted) {
+          onClientDeleted();
+        }
+        setShowDeleteClientModal(false);
+      } else {
+        alert("Erro ao excluir cliente. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      alert("Erro interno. Tente novamente.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteClientConfirm = () => {
+    setShowDeleteClientModal(true);
+  };
+
+  const handleEditDependent = (dependent: Dependent) => {
+    setSelectedDependent(dependent);
+    setShowEditDependentModal(true);
+  };
+
+  const handleDeleteDependent = async () => {
+    if (!dependentToDelete) return;
+
+    try {
+      const result = await deleteDependent(dependentToDelete.id);
+      if (result && result.success) {
+        // Refresh the dependents list
+        handleDependentAdded();
+        setShowDeleteDependentModal(false);
+        setDependentToDelete(null);
+      } else {
+        alert("Erro ao excluir dependente. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Error deleting dependent:", error);
+      alert("Erro interno. Tente novamente.");
+    }
+  };
+
+  const handleDeleteDependentConfirm = (dependent: Dependent) => {
+    setDependentToDelete(dependent);
+    setShowDeleteDependentModal(true);
+  };
+
+  const handleDependentUpdated = () => {
+    // Refresh the dependents list after updating
+    handleDependentAdded();
   };
   // Debug: Log the client data to see the birth date format
   console.log("Client data:", client);
@@ -467,6 +556,46 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
                         </div>
                       )}
                     </div>
+                    <div className="client-details__dependent-actions">
+                      <button
+                        onClick={() => handleEditDependent(dependent)}
+                        className="client-details__dependent-action-button client-details__dependent-action-button--edit"
+                        title="Editar dependente"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDependentConfirm(dependent)}
+                        className="client-details__dependent-action-button client-details__dependent-action-button--delete"
+                        title="Excluir dependente"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <polyline points="3,6 5,6 21,6" />
+                          <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" />
+                          <line x1="10" y1="11" x2="10" y2="17" />
+                          <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
+                        Excluir
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -495,7 +624,10 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
                 </svg>
                 Novo Relatório
               </button>
-              <button className="client-details__action-button client-details__action-button--secondary">
+              <button
+                className="client-details__action-button client-details__action-button--secondary"
+                onClick={() => setShowEditClientModal(true)}
+              >
                 <svg
                   width="16"
                   height="16"
@@ -526,6 +658,26 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
                 </svg>
                 Ver Relatórios
               </button>
+              <button
+                className="client-details__action-button client-details__action-button--danger"
+                onClick={handleDeleteClientConfirm}
+                disabled={isDeleting}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="3,6 5,6 21,6" />
+                  <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
+                </svg>
+                {isDeleting ? "Excluindo..." : "Excluir Cliente"}
+              </button>
             </div>
           </div>
         </div>
@@ -537,6 +689,48 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
         onClose={() => setShowAddDependentModal(false)}
         clientId={client.id}
         onDependentAdded={handleDependentAdded}
+      />
+
+      {/* Edit Client Modal */}
+      <EditClient
+        isOpen={showEditClientModal}
+        onClose={() => setShowEditClientModal(false)}
+        client={client}
+        onClientUpdated={handleClientUpdated}
+      />
+
+      {/* Edit Dependent Modal */}
+      <EditDependent
+        isOpen={showEditDependentModal}
+        onClose={() => {
+          setShowEditDependentModal(false);
+          setSelectedDependent(null);
+        }}
+        dependent={selectedDependent}
+        onDependentUpdated={handleDependentUpdated}
+      />
+
+      {/* Delete Client Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={showDeleteClientModal}
+        onClose={() => setShowDeleteClientModal(false)}
+        onConfirm={handleDeleteClient}
+        title="Excluir Cliente"
+        message="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita e também excluirá todos os dependentes associados."
+        isDeleting={isDeleting}
+      />
+
+      {/* Delete Dependent Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={showDeleteDependentModal}
+        onClose={() => {
+          setShowDeleteDependentModal(false);
+          setDependentToDelete(null);
+        }}
+        onConfirm={handleDeleteDependent}
+        title="Excluir Dependente"
+        message={`Tem certeza que deseja excluir o dependente "${dependentToDelete?.name}"? Esta ação não pode ser desfeita.`}
+        isDeleting={false}
       />
     </div>
   );

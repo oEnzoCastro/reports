@@ -109,6 +109,44 @@ export async function postClient(client: any) {
   }
 }
 
+export async function updateClient(clientId: number, client: any) {
+  try {
+    const response = await fetch(`${url}/client/${clientId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(client),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in updateClient:", error);
+    return null;
+  }
+}
+
+export async function deleteClient(clientId: number) {
+  try {
+    const response = await fetch(`${url}/client/${clientId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in deleteClient:", error);
+    return null;
+  }
+}
+
 // Dependents
 
 export async function getDependents(clientid: string) {
@@ -127,7 +165,6 @@ export async function getDependents(clientid: string) {
 }
 
 export async function postDependent(dependent: any) {
-
   try {
     const response = await fetch(`${url}/dependent`, {
       method: "POST",
@@ -143,6 +180,44 @@ export async function postDependent(dependent: any) {
     return data;
   } catch (error) {
     console.error("Error in postDependent:", error);
+    return null;
+  }
+}
+
+export async function updateDependent(dependentId: string, dependent: any) {
+  try {
+    const response = await fetch(`${url}/dependent/${dependentId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dependent),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in updateDependent:", error);
+    return null;
+  }
+}
+
+export async function deleteDependent(dependentId: string) {
+  try {
+    const response = await fetch(`${url}/dependent/${dependentId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in deleteDependent:", error);
     return null;
   }
 }

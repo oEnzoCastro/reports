@@ -991,6 +991,7 @@
   background: white;
   transition: all 0.2s ease;
   outline: none;
+  font-family: inherit;
 }
 
 .form-input:focus {
@@ -1007,6 +1008,20 @@
   background: var(--secondary-color);
   color: var(--text-secondary);
   cursor: not-allowed;
+}
+
+/* Custom select styling */
+select.form-input {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  appearance: none;
+}
+
+select.form-input:focus {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2320261c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
 .form-error {
@@ -1163,4 +1178,265 @@
   .modal-actions {
     order: 2;
   }
+}
+
+/* Dependent Action Buttons */
+.client-details__dependent-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.client-details__dependent-action-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background: white;
+}
+
+.client-details__dependent-action-button svg {
+  flex-shrink: 0;
+}
+
+.client-details__dependent-action-button--edit {
+  color: var(--primary-color);
+  border-color: var(--border-color);
+}
+
+.client-details__dependent-action-button--edit:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+}
+
+.client-details__dependent-action-button--delete {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.client-details__dependent-action-button--delete:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.15);
+}
+
+/* Danger button for delete client */
+.client-details__action-button--danger {
+  color: white;
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.client-details__action-button--danger:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.client-details__action-button--danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form sections for edit modals */
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Enhanced modal animations and responsiveness */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 95vh;
+    margin: 20px;
+  }
+
+  .modal-header {
+    padding: 20px 16px 12px;
+  }
+
+  .modal-form {
+    padding: 20px 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Smooth focus states for accessibility */
+.form-input:focus,
+.btn:focus,
+.modal-close-button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Loading state for buttons */
+.btn:disabled {
+  position: relative;
+  color: transparent;
+}
+
+.btn:disabled::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  color: white;
+}
+
+.btn--secondary:disabled::after {
+  color: var(--text-secondary);
+}
+
+@keyframes spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Confirm Delete Modal Styles */
+.confirm-delete-modal {
+  max-width: 480px;
+  width: 90%;
+}
+
+.confirm-delete-body {
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.confirm-delete-icon {
+  margin: 0 auto 20px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #fee2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warning-icon {
+  color: #dc2626;
+  width: 32px;
+  height: 32px;
+}
+
+.confirm-delete-message {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 20px;
+  padding-top: 20px;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger:disabled {
+  background-color: #fca5a5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--accent-light);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-secondary:disabled {
+  background-color: #f5f5f5;
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }

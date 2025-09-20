@@ -255,7 +255,135 @@ app.post("/client", async (req, res) => {
     });
 
     return data[0]?.id;
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
+    });
+  }
+});
 
+// PUT endpoint to update a client
+app.put("/client/:id", async (req, res) => {
+  const clientId = req.params.id;
+  const {
+    name,
+    profession,
+    email,
+    phonenumber,
+    gender,
+    birthdate,
+    maritalstatus,
+    address,
+    addressnumber,
+    addresscomplement,
+    partnername,
+    partneremail,
+    partnerphonenumber,
+    partnergender,
+    partnerprofession,
+    partnerbirthdate,
+  } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from("clients")
+      .update({
+        name,
+        profession,
+        email,
+        phonenumber,
+        gender,
+        birthdate,
+        maritalstatus,
+        address,
+        addressnumber,
+        addresscomplement,
+        partnername,
+        partneremail,
+        partnerphonenumber,
+        partnergender,
+        partnerprofession,
+        partnerbirthdate,
+      })
+      .eq("id", clientId)
+      .select();
+
+    if (error) {
+      console.error("Error updating client:", error);
+      return res.status(500).json({
+        error: "Failed to update client",
+        details: error.message,
+      });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Client updated successfully",
+      client: data[0],
+    });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
+    });
+  }
+});
+
+// DELETE endpoint to delete a client
+app.delete("/client/:id", async (req, res) => {
+  const clientId = req.params.id;
+
+  try {
+    // First, delete all dependents of this client
+    const { error: dependentsError } = await supabase
+      .from("dependents")
+      .delete()
+      .eq("clientid", clientId);
+
+    if (dependentsError) {
+      console.error("Error deleting client's dependents:", dependentsError);
+      return res.status(500).json({
+        error: "Failed to delete client's dependents",
+        details: dependentsError.message,
+      });
+    }
+
+    // Then delete the client
+    const { data, error } = await supabase
+      .from("clients")
+      .delete()
+      .eq("id", clientId)
+      .select();
+
+    if (error) {
+      console.error("Error deleting client:", error);
+      return res.status(500).json({
+        error: "Failed to delete client",
+        details: error.message,
+      });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Client and associated dependents deleted successfully",
+    });
   } catch (err) {
     console.error("Server error:", err);
     res.status(500).json({
@@ -330,6 +458,93 @@ app.post("/dependent", async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Dependent created successfully",
+    });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
+    });
+  }
+});
+
+// PUT endpoint to update a dependent
+app.put("/dependent/:id", async (req, res) => {
+  const dependentId = req.params.id;
+  const { name, email, gender, birthdate, phonenumber, type } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from("dependents")
+      .update({
+        name,
+        email,
+        gender,
+        birthdate,
+        phonenumber,
+        type,
+      })
+      .eq("id", dependentId)
+      .select();
+
+    if (error) {
+      console.error("Error updating dependent:", error);
+      return res.status(500).json({
+        error: "Failed to update dependent",
+        details: error.message,
+      });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Dependent not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Dependent updated successfully",
+      dependent: data[0],
+    });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      details: err.message,
+    });
+  }
+});
+
+// DELETE endpoint to delete a dependent
+app.delete("/dependent/:id", async (req, res) => {
+  const dependentId = req.params.id;
+
+  try {
+    const { data, error } = await supabase
+      .from("dependents")
+      .delete()
+      .eq("id", dependentId)
+      .select();
+
+    if (error) {
+      console.error("Error deleting dependent:", error);
+      return res.status(500).json({
+        error: "Failed to delete dependent",
+        details: error.message,
+      });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Dependent not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Dependent deleted successfully",
     });
   } catch (err) {
     console.error("Server error:", err);

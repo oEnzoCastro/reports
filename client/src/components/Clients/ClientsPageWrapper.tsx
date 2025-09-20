@@ -5,20 +5,35 @@ import ClientsAside from "./ClientsAside";
 import CreateClient from "./CreateClient";
 import ClientDetails from "./ClientDetails";
 import { Client } from "../../models/Client";
+import { getClients } from "../../services/db";
 
 export default function ClientsPageWrapper() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [isAsideOpen, setIsAsideOpen] = useState(true);
+  const [refreshClients, setRefreshClients] = useState(0);
 
   const handleClientSelect = (client: Client) => {
+    // Always ensure we have the latest client data
+    console.log("Client selected:", client.name, "- ID:", client.id);
     setSelectedClient(client);
   };
 
   const toggleAside = () => {
     setIsAsideOpen(!isAsideOpen);
   };
-  
+
+  const handleClientUpdated = async () => {
+    // Trigger a refresh of the clients list - the aside will handle updating the selected client
+    console.log("Client updated - refreshing client list");
+    setRefreshClients((prev) => prev + 1);
+  };
+
+  const handleClientDeleted = () => {
+    // Clear the selected client and refresh the list
+    setSelectedClient(null);
+    setRefreshClients((prev) => prev + 1);
+  };
 
   return (
     <div className="clients-page w-full">
@@ -26,6 +41,8 @@ export default function ClientsPageWrapper() {
         <ClientsAside
           onClientSelect={handleClientSelect}
           onClose={toggleAside}
+          refreshTrigger={refreshClients}
+          selectedClientId={selectedClient?.id || null}
         />
       )}
 
@@ -58,7 +75,11 @@ export default function ClientsPageWrapper() {
           )}
         </div>
         {selectedClient ? (
-          <ClientDetails client={selectedClient} />
+          <ClientDetails
+            client={selectedClient}
+            onClientUpdated={handleClientUpdated}
+            onClientDeleted={handleClientDeleted}
+          />
         ) : (
           <div className="clients-main__placeholder">
             <div className="clients-main__placeholder-icon">
