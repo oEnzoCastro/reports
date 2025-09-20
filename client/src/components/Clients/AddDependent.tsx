@@ -37,9 +37,9 @@ export default function AddDependent({
   ];
 
   const genderOptions = [
-    { value: "M", label: "Masculino" },
-    { value: "F", label: "Feminino" },
-    { value: "O", label: "Outro" },
+    { value: "Masculino", label: "Masculino" },
+    { value: "Feminino", label: "Feminino" },
+    { value: "Outro", label: "Outro" },
   ];
 
   const handleInputChange = (

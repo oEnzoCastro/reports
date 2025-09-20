@@ -383,10 +383,9 @@ export default function CreateClient({
           className={`form-input ${errors.gender ? "form-input--error" : ""}`}
         >
           <option value="">Selecione</option>
-          <option value="masculino">Masculino</option>
-          <option value="feminino">Feminino</option>
-          <option value="outro">Outro</option>
-          <option value="prefiro-nao-informar">Prefiro não informar</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Feminino">Feminino</option>
+          <option value="Outro">Outro</option>
         </select>
         {errors.gender && <span className="form-error">{errors.gender}</span>}
       </div>
@@ -576,10 +575,9 @@ export default function CreateClient({
               }`}
             >
               <option value="">Selecione</option>
-              <option value="masculino">Masculino</option>
-              <option value="feminino">Feminino</option>
-              <option value="outro">Outro</option>
-              <option value="prefiro-nao-informar">Prefiro não informar</option>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+              <option value="O">Outro</option>
             </select>
             {errors.partnerGender && (
               <span className="form-error">{errors.partnerGender}</span>
@@ -760,12 +758,9 @@ export default function CreateClient({
                     }`}
                   >
                     <option value="">Selecione</option>
-                    <option value="masculino">Masculino</option>
-                    <option value="feminino">Feminino</option>
-                    <option value="outro">Outro</option>
-                    <option value="prefiro-nao-informar">
-                      Prefiro não informar
-                    </option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                    <option value="O">Outro</option>
                   </select>
                   {errors[`dependent_${index}_gender`] && (
                     <span className="form-error">
@@ -819,14 +814,13 @@ export default function CreateClient({
                     }`}
                   >
                     <option value="">Selecione</option>
-                    <option value="filho">Filho(a)</option>
-                    <option value="enteado">Enteado(a)</option>
-                    <option value="neto">Neto(a)</option>
-                    <option value="pai">Pai</option>
-                    <option value="mae">Mãe</option>
-                    <option value="sogro">Sogro(a)</option>
-                    <option value="irmao">Irmão/Irmã</option>
-                    <option value="outro">Outro</option>
+                    <option value="Filho(a)">Filho(a)</option>
+                    <option value="Cônjuge">Cônjuge</option>
+                    <option value="Pai/Mãe">Pai/Mãe</option>
+                    <option value="Irmão/Irmã">Irmão/Irmã</option>
+                    <option value="Avô/Avó">Avô/Avó</option>
+                    <option value="Neto(a)">Neto(a)</option>
+                    <option value="Outro">Outro</option>
                   </select>
                   {errors[`dependent_${index}_type`] && (
                     <span className="form-error">
