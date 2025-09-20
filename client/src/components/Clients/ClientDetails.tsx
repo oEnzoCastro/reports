@@ -135,34 +135,18 @@ export default function ClientDetails({
     // Refresh the dependents list after updating
     handleDependentAdded();
   };
-  // Debug: Log the client data to see the birth date format
-  console.log("Client data:", client);
-  console.log(
-    "Birth date:",
-    client.birthdate,
-    "Type:",
-    typeof client.birthdate
-  );
 
   // Additional debugging for the formatted date
   if (client.birthdate) {
-    console.log("Original birthdate:", client.birthdate);
-    console.log("Formatted birthdate:", new Date(client.birthdate).toString());
     const birthdateStr = String(client.birthdate);
     if (birthdateStr.includes("T")) {
       const datePart = birthdateStr.split("T")[0];
       const [year, month, day] = datePart.split("-").map(Number);
-      console.log(
-        "Local date (no timezone):",
-        new Date(year, month - 1, day).toString()
-      );
     }
   }
 
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "Não informado";
-
-    console.log("formatDate input:", date, "type:", typeof date);
 
     // Handle different date formats
     let dateObj: Date;
@@ -174,14 +158,11 @@ export default function ClientDetails({
         const datePart = date.split("T")[0];
         const [year, month, day] = datePart.split("-").map(Number);
         dateObj = new Date(year, month - 1, day); // month is 0-based
-        console.log("Parsed as local date:", dateObj.toString());
       } else {
         dateObj = new Date(date);
-        console.log("Parsed as standard date:", dateObj.toString());
       }
     } else {
       dateObj = new Date(date);
-      console.log("Converted Date object:", dateObj.toString());
     }
 
     // Check if date is valid
@@ -195,7 +176,6 @@ export default function ClientDetails({
       year: "numeric",
     }).format(dateObj);
 
-    console.log("Final formatted date:", formatted);
     return formatted;
   };
 

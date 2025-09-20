@@ -271,8 +271,7 @@ export default function CreateClient({
               : undefined,
         };
 
-        // Here you would typically send the data to your API
-        console.log(clientData);
+        // Send the data to your API
         const clientResult = await postClient(clientData);
 
         // Check if client creation was successful

@@ -39,10 +39,6 @@ export default function ClientsAside({
           (client: Client) => client.id === externalSelectedClientId
         );
         if (updatedSelectedClient) {
-          console.log(
-            "Updating selected client with fresh data:",
-            updatedSelectedClient.name
-          );
           onClientSelect(updatedSelectedClient);
         }
       }

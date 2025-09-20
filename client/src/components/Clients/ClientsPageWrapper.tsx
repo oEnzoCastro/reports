@@ -15,7 +15,6 @@ export default function ClientsPageWrapper() {
 
   const handleClientSelect = (client: Client) => {
     // Always ensure we have the latest client data
-    console.log("Client selected:", client.name, "- ID:", client.id);
     setSelectedClient(client);
   };
 
@@ -25,7 +24,6 @@ export default function ClientsPageWrapper() {
 
   const handleClientUpdated = async () => {
     // Trigger a refresh of the clients list - the aside will handle updating the selected client
-    console.log("Client updated - refreshing client list");
     setRefreshClients((prev) => prev + 1);
   };
 
