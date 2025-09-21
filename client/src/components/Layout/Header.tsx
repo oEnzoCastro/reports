@@ -15,7 +15,7 @@ export default async function Header() {
   console.log("Fetched user:", user);
 
   return (
-    <header className="flex justify-between items-center bg-(--primary) p-2 shadow transition">
+    <header className="flex justify-between items-center bg-(--primary) p-2 shadow transition z-2">
       {/* Logo */}
       <a href="/" className="">
         <img src="/logo_white.webp" alt="" className="h-14 object-contain" />

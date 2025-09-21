@@ -2,6 +2,7 @@
 
 import { logout } from "@/lib/actions";
 import { useState } from "react";
+import { User } from "@/models/User";
 
 type HeaderDropdownProps = {
   user: User;

@@ -1,5 +1,7 @@
 type Reminder = {
-        id: number,
-        title: string,
-        ischecked: boolean,
-    }
+  id: number;
+  title: string;
+  ischecked: boolean;
+};
+
+export type { Reminder };

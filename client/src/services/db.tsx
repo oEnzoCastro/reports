@@ -221,3 +221,99 @@ export async function deleteDependent(dependentId: string) {
     return null;
   }
 }
+
+// Reports
+
+export async function getUserReports() {
+  // Get the User ID from the session
+  const user = await getUserID();
+
+  try {
+    const response = await fetch(`${url}/user-reports?user=${user}`);
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in getUserReports:", error);
+    return [];
+  }
+}
+
+export async function getClientReports(clientId?: number) {
+  try {
+    const endpoint = clientId
+      ? `${url}/client-reports?clientId=${clientId}`
+      : `${url}/client-reports`;
+
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in getClientReports:", error);
+    return [];
+  }
+}
+
+export async function postUserReport(title: string, content: string) {
+  // Get the User ID from the session
+  const user = await getUserID();
+
+  try {
+    const response = await fetch(`${url}/user-report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        content,
+        useremail: user,
+      }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in postUserReport:", error);
+    return null;
+  }
+}
+
+export async function postClientReport(
+  clientId: number,
+  title: string,
+  content: string
+) {
+  try {
+    const response = await fetch(`${url}/client-report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        content,
+        clientid: clientId,
+      }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in postClientReport:", error);
+    return null;
+  }
+}
